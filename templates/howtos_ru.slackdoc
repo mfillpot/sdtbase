@@ -1,14 +1,17 @@
-====== Your Headline Here ======
+<!-- Добавьте текст. Рекомендуем использовать Заголовки (Headline) (см. выше панель кнопок). -->
+====== Поместите здесь заголовок статьи ======
 
-====== Sources ======
-<!-- If you are copying information from another source, then specify that
-source -->
-<!-- * Original source: [[http://some.website.org/some/page.html]] -->
-<!-- Authors are allowed to give credit to themselves! -->
-<!-- * Originally written by [[wiki:user:xxx | User X]] -->
-<!-- * Contributions by [[wiki:user:yyy | User Y]] -->
 
-<!-- Please do not modify anything below, except adding new tags.-->
-<!-- You must remove the tag-word "template" below before saving your new
-page -->
+
+
+====== Источники ======
+<!-- Если откуда-то копируете информацию, укажите источник -->
+<!-- * Источник: [[http://some.website.org/some/page.html]] -->
+<!-- Аторам разрешено указывать себя -->
+<!-- * Первый автор [[wiki:user:xxx | User X]] -->
+<!-- * Разместил [[wiki:user:yyy | User Y]] -->
+
+<!-- Не меняйте ниже ничего, кроме добавления новых меток.-->
+<!-- Перед сохранением страницы обязательно удалите метку "template" -->
 {{tag>howtos template}}
+
