@@ -51,4 +51,11 @@ PAGE=$SDBASE/$PAGE
 # retrieve the page
 wget $PAGE$EXTRACTLINE --output-document=$OF
 
+if [ -n "$(cat $OF|grep epub_LoadScript)" ]; then
+  rm $OF
+  echo " $PAGE does not exist"
+else
+  echo " $OF is ready to edit"
+fi
+
 exit 0
