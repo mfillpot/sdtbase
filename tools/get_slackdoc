@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Author: Matthew Fillpot
+# Created: 2012-12-28
+# License: BSD
+#
+# Description
+# -------------------------------------------------------
+# Downloads the chosen page from docs.slackware.com in 
+#  the dokuwiki form
+#
+
+if [[ $# -ne 1 ]]; then
+  echo "Wrong nummber of arguments, terminating"
+  exit 1
+fi
+
+SDBASE="http://docs.slackware.com"
+
+EXTENSION="slackdoc"
+#FILETYPE="slackdocs"
+#SYNTAXFILE="slackdocs.vim"
+#SYNTAX_DIR="syntax_files"
+#TOOLS_DIR="tools"
+
+EXTRACTLINE="?do=export_raw"
+
+# Define the path to the repo directory
+#REPO_PATH=$(dirname $(cd `dirname "${BASH_SOURCE[0]}"` && pwd) )
+
+# PAge holds the name of the requested page
+PAGE=$1
+
+# if requested page includs base url remove it of output page can be 
+#  determined
+if [[ "$PAGE" == *"$SDBASE"* ]]; then
+  PAGE="$(echo "$PAGE"|cut -d "/" -f 4)"
+fi
+
+# Set output file name
+OF="$(echo "$PAGE"|sed 's/:/-/g').$EXTENSION"
+
+# If output file exists remove it
+if [ -e $OF ]; then
+  rm $OF
+fi
+
+# Append the base url to the page address
+PAGE=$SDBASE/$PAGE
+
+# retrieve the page
+wget $PAGE$EXTRACTLINE --output-document=$OF
+
+exit 0
