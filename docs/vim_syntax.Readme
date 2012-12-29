@@ -2,7 +2,7 @@ Installing the vim Syntax File
 -----------------------------------------
 
 To ease installation of the syntax file the script named add_vim_file.sh
-is included in the tools directory of the git repo. This script, when
+is included in the syntax_files directory of the git repo. This script, when
 launched from that directory, does the following:
   - Removed all lines that contain the work slackdocs from your ~/.vimrc file.
   - Adds the following lines to the end of the ~/.vimrc file:
