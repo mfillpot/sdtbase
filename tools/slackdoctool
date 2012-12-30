@@ -92,7 +92,7 @@ local TEMPPAGE="http://docs.slackware.com/wiki:user:mfillpot:template_list"
     mkdir $REPO_PATH/$TEMPLATE_DIR
   fi
 
-  local TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackdocs slackware )
+  local TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackware )
 
   for TEMPLATE in "${TEMPS[@]}"
   do
