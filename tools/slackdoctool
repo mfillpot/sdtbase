@@ -86,7 +86,7 @@ VimSyntax() {
 PullTemplates() {
 # Pulls the listed template files into the templates directory
 
-local TEMPPAGE="http://docs.slackware.com/wiki:user:mfillpot:template_list"
+#local TEMPPAGE="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 
   if [ ! -d $REPO_PATH/$TEMPLATE_DIR ]; then
     mkdir $REPO_PATH/$TEMPLATE_DIR
