@@ -2,13 +2,32 @@
 # Author: Matthew Fillpot
 # Created: 2012-12-28
 # License: BSD
+VERSION="0.0.1"
 #
 # Description
 # -------------------------------------------------------
 # Toolkit used to simplify offline editing of slackdocs
 #  wiki content
 #
-VERSION="0.0.1"
+
+
+#------ TODO List -------
+#	1. See if the script is causing terminal wrapping issues from font colors and fix them
+# F	2. Post the kate syntax info as output from the command "syntax kate"
+# F	3. output info explaining what "syntax vim" is doing
+#	4. Add an option to fetch from a list
+#	5. Set the script to block execution from root
+# 	6. Set the fetch to grab the original example syntax file from wiki:syntax
+# 	7. Remove the example syntax file created for this package
+#		7a. Find a way to dump the syntax files to the site to be fetched
+# H	8. Add the option to start working from a template
+#	9. Set an update feature that will grab the new script from github
+#	10. Set the template fetch to pull from list on wiki
+#	11. As all docs are removed, remove the CC license
+#	12. Add a page to the wiki with vim optimizations and refer to them in the script
+#	13. Clean up the script
+#  
+
 
 # Define the path to the repo directory
 REPO_PATH=$(dirname $(cd `dirname "${BASH_SOURCE[0]}"` && pwd) )
