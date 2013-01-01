@@ -349,7 +349,7 @@ case "${1}" in
 			# Check if $2 is within the template index range
 			if [[ "$2" -gt ${#TEMPS[*]} ]]; then
 				AvailableTemplates
-				printf "\nTemplate index out of range!\n\n"
+				printf "${REDTXT}Template index out of range!${NRMTXT}\n\n"
 				exit 1
 			else
 					# Create a new document based on a template
@@ -363,6 +363,13 @@ case "${1}" in
 		fi
 		;;
 	copy)
+		if [[ $# != 2 ]]; then
+			CopyToClipboard $2 "0"
+		else
+			printf "${REDTXT}Invalid numer of arugments!${NRMTXT}\n\n"
+			DisplayHelp
+			exit 1
+		fi
 		;;
 	help)
 		DisplayHelp
