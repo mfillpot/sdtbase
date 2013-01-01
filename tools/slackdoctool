@@ -2,7 +2,7 @@
 # Author: Matthew Fillpot
 # Created: 2012-12-28
 # License: BSD
-VERSION="0.0.1"
+VERSION="0.0.2"
 #
 # Description
 # -------------------------------------------------------
@@ -40,11 +40,16 @@ SD_DIR="${HOME}/slackdocs"
 SYNTAX_DIR="${REPO_PATH}/syntax_files"
 #TOOLS_DIR="tools"
 TEMPLATE_DIR="${SD_DIR}/templates"
+TEMPLATE_IND=""
+DOC_TITLE=${DOC_TITLE:-"new"}
 
 CWD=`pwd`
 
 # Define a variable for return strings
 RTRN=""
+
+# List of available templates
+TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackware )
 
 # Set Output font colors
 BLDTXT='\e[1m%s'
@@ -52,110 +57,109 @@ NRMTXT='\e[0m%s'
 REDTXT='\e[1;31m'
 
 BuildStructure() {
-  if [ ! -d ${TEMPLATE_DIR} ]; then
-    printf "${REDTXT}The user directory at ${SD_DIR} does not exist${NRMTXT}\n"
-    read -p "Would you like to create it? (Y/N) :" yn
-    case ${yn} in
-    [Yy*]* )
-      mkdir -v ${SD_DIR}
-      if [ ! -d ${TEMPLATE_DIR} ]; then
-        mkdir -v ${TEMPLATE_DIR}
-        fi
-      ;;
-    * )
-      printf "${REDTXT}Cannot resume without directory in place, Terminating.${NRMTXT}\n"
-      exit 1
-      ;;
-    esac
-  fi
-
+	if [ ! -d ${TEMPLATE_DIR} ]; then
+		printf "${REDTXT}The user directory at ${SD_DIR} does not exist${NRMTXT}\n"
+		read -p "Would you like to create it? (Y/N) :" yn
+		case ${yn} in
+		[Yy*]* )
+			mkdir -v ${SD_DIR}
+			if [ ! -d ${TEMPLATE_DIR} ]; then
+				mkdir -v ${TEMPLATE_DIR}
+			fi
+			;;
+		* )
+			printf "${REDTXT}Cannot resume without directory in place, Terminating.${NRMTXT}\n"
+			exit 1
+			;;
+		esac
+	fi
 }
 
 PullPage() {
-  # Pulls the single page from $1 into the location at $2
+	# Pulls the single page from $1 into the location at $2
 
-  if [ ! -d ${2} ]; then
-    printf "${REDTXT}The ${2} directory does not exist, terminating action${NRMTXT}\n"
-    exit 1
-  fi
+	if [ ! -d ${2} ]; then
+		printf "${REDTXT}The ${2} directory does not exist, terminating action${NRMTXT}\n"
+		exit 1
+	fi
 
-  local SDBASE="http://docs.slackware.com"
+	local SDBASE="http://docs.slackware.com"
 
-  local EXTRACTLINE="?do=export_raw"
+	local EXTRACTLINE="?do=export_raw"
 
-  # Page holds the name of the requested page
-  local PAGE=${1}
+	# Page holds the name of the requested page
+	local PAGE=${1}
 
-  # if requested page includs base url remove it of output page can be 
-  #  determined
-  if [[ "${PAGE}" == *"${SDBASE}"* ]]; then
-    PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
-  fi
+	# if requested page includs base url remove it of output page can be 
+	#  determined
+	if [[ "${PAGE}" == *"${SDBASE}"* ]]; then
+		PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
+	fi
 
-  # Set output file name
-  if [ "${2}" = "${TEMPLATE_DIR}" ]; then
-    local OF="$(echo "${PAGE}"|sed 's/:/-/g'|sed 's/templates-//g').${EXTENSION}"
-  else
-    local OF="$(echo "${PAGE}"|sed 's/:/-/g').${EXTENSION}"
-  fi
+	# Set output file name
+	if [ "${2}" = "${TEMPLATE_DIR}" ]; then
+		local OF="$(echo "${PAGE}"|sed 's/:/-/g'|sed 's/templates-//g').${EXTENSION}"
+	else
+		local OF="$(echo "${PAGE}"|sed 's/:/-/g').${EXTENSION}"
+	fi
 
   # If output file exists remove it
-  if [ -e ${OF} ]; then
-    rm ${OF}
-  fi
+	if [ -e ${OF} ]; then
+		rm ${OF}
+	fi
 
-  # Append the base url to the page address
-  local PAGE=${SDBASE}/${PAGE}
+	# Append the base url to the page address
+	local PAGE=${SDBASE}/${PAGE}
 
-  if [ -e ${2}/${OF} ]; then
-    printf "${REDTXT}${OF} exists${NRMTXT}\n"
-    read -p "Would you like to overwrite it? " yn
-    case ${yn} in
-      [Yy]* )
+	if [ -e ${2}/${OF} ]; then
+		printf "${REDTXT}${OF} exists${NRMTXT}\n"
+		read -p "Would you like to overwrite it? " yn
+		case ${yn} in
+		[Yy]* )
 
-        rm ${2}/${OF}
+			rm ${2}/${OF}
 
-        FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${2}/${OF}
-        ;;
-      * )
-        printf ""
-        ;;
-    esac
-  else
-    FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${2}/${OF}
-  fi
+			FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${2}/${OF}
+			;;
+		* )
+			printf ""
+			;;
+		esac
+	else
+		FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${2}/${OF}
+	fi
 }
 
 FinishPull() {
-  # retrieve the page
-  wget ${1} --output-document=${3}
+	# retrieve the page
+	wget ${1} --output-document=${3}
 
-  # Test for a valid pull and display associated message
-  if [ -n "$(cat ${3}|grep epub_LoadScript)" ]; then
-    rm ${3}
-    printf "${REDTXT} ${2} does not exist${NRMTXT}\n"
-  else
-    printf "${BLDTXT} ${3} is ready to edit${NRMTXT}\n"
-  fi
+	# Test for a valid pull and display associated message
+	if [ -n "$(cat ${3}|grep epub_LoadScript)" ]; then
+		rm ${3}
+		printf "${REDTXT} ${2} does not exist${NRMTXT}\n"
+	else
+		printf "${BLDTXT} ${3} is ready to edit${NRMTXT}\n"
+	fi
 }
 
 VimSyntax() {
-  # Update/ Appends the necessary directive to the users .vimrc
-  #  file to set syntax highlighting for slackdocs
-  
-  local VIMRC="${HOME}/.vimrc"
+	# Update/ Appends the necessary directive to the users .vimrc
+	#  file to set syntax highlighting for slackdocs
 
-  cp ${SYNTAX_DIR}/${SYNTAXFILE} ${SD_DIR}/.${SYNTAXFILE}
+	local VIMRC="${HOME}/.vimrc"
 
-  # removes existing slackdoc syntax template lines if they exist
-  sed -i /${FILETYPE}/d ${VIMRC}
+	cp ${SYNTAX_DIR}/${SYNTAXFILE} ${SD_DIR}/.${SYNTAXFILE}
 
-  # Write the new lines to the vimrc file
-  echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
-  echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
-  echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNTAXFILE}">>${VIMRC}
+	# removes existing slackdoc syntax template lines if they exist
+	sed -i /${FILETYPE}/d ${VIMRC}
 
-  printf "${BLDTXT}  The file ${VIMRC} has been updated${NRMTXT}\n"
+	# Write the new lines to the vimrc file
+	echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
+	echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
+	echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNTAXFILE}">>${VIMRC}
+
+	printf "${BLDTXT}  The file ${VIMRC} has been updated${NRMTXT}\n"
 }
 
 PullTemplates() {
@@ -163,101 +167,210 @@ PullTemplates() {
 
 #local TEMPPAGE="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 
-  if [ ! -d ${TEMPLATE_DIR} ]; then
-    mkdir ${TEMPLATE_DIR}
-  fi
+	if [ ! -d ${TEMPLATE_DIR} ]; then
+		mkdir ${TEMPLATE_DIR}
+	fi
 
-  local TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackware )
+	local TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackware )
 
-  for TEMPLATE in "${TEMPS[@]}"
-  do
-    PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
-  done
+	for TEMPLATE in "${TEMPS[@]}"
+	do
+		PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
+	done
 
-  printf "${BLDTXT} All templates have been successfully retreived.${NRMTXT}\n"
+	printf "${BLDTXT} All templates have been successfully retreived.${NRMTXT}\n"
+}
+
+AvailableTemplates() {
+# Displays a list of available templates and usage
+			
+	printf "\nTo create a new document using a template type:\n"
+	printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
+	printf "\nThe following templates are available:\n\n"
+							
+	for i in ${!TEMPS[*]}
+	do
+		printf "%4d: %s\n" $i ${TEMPS[$i]}
+	done
+	printf "\n"
+}
+
+CreateNew() {
+
+	BuildStructure
+
+	# Pull the templates if they are not present
+	if [ ! -d ${TEMPLATE_DIR} ]; then
+		PullTemplates
+	fi
+
+	TEMPLATE_FILE=${TEMPLATE_DIR}/${TEMPS[${TEMPLATE_IND}]}.${EXTENSION}
+	OUTPUT_FILE=${SD_DIR}/${DOC_TITLE}.${EXTENSION}
+
+	if [ -f ${TEMPLATE_FILE} ]; then
+
+		# Check if the output file already exists. If so, edit it.
+		if [ -f ${OUTPUT_FILE} ]; then
+			vim ${OUTPUT_FILE}
+			CopyToClipboard ${OUTPUT_FILE} "1"
+
+			# If the output file does not exist, copy the template, rename and
+			# edit it.
+		else
+			cp ${TEMPLATE_FILE} ${OUTPUT_FILE} && vim ${OUTPUT_FILE}
+			CopyToClipboard ${OUTPUT_FILE} "1"
+		fi
+	else
+		echo "There have been problems accessing ${TEMPLATE_FILE}"
+	fi
+}
+
+CopyToClipboard()
+{
+	if [ -f ${1} ]
+	then
+		if [ "${2}" = "1" ]
+		then
+			ls /var/log/packages | grep "\<xclip\>" > /dev/null
+			# if xclip is installed on the system, 
+			# copy the contents of the file to clipboard
+			if [ $? -eq 0 ]; then
+				read -p "Would you like the contents of ${1} to be copied to the clipboard [y/N]? " yn
+				case ${yn} in
+				[Yy*]* )
+					cat ${1} | xclip -selection clipboard
+					echo "The content of ${1} has been copied to clipboard."
+					return 1
+					;;
+				esac
+			else
+				printf "${REDTXT}xclip is not installed, the contens will need to be manually copied$.{NRMTXT}"
+				return 1
+			fi
+		else
+			cat ${1} | xclip -selection clipboard
+		fi
+	else
+		printf "${REDTXT}The File ${1} does not exist, terminating action.${NRMTXT}"
+		exit 1
+	fi
 }
 
 DisplayHelp() {
 # Displays the help text
 
-  printf "\n${BLDTXT}Slackware Documentation Project Off-line Tools${NRMTXT}\n"
-  printf "${BLDTXT}Version: ${NRMTXT}${VERSION}\n"
-  printf "\n"
-  printf "${BLDTXT}Options:${NRMTXT}\n"
-  printf '%s\n' --------------------
-  printf "${BLDTXT}help${NRMTXT} - Displays this dialog\n"
-  printf "\n"
-  printf "${BLDTXT}fetch${NRMTXT} - fetches a wiki formatted page form docs.slackware.com.\n"
-  printf "  ${BLDTXT}URL${NRMTXT} - can be from the site root or the whole address.\n"
-  printf "    ${BLDTXT}[Destination Directory]${NRMTXT} - if ommited it will be in the pwd.\n"
-  printf "\n"
-  printf "  ${BLDTXT}templates${NRMTXT} - " "can be from the site root or the whole address.\n"
-  printf "\n"
-  printf "${BLDTXT}syntax${NRMTXT} - Applies the associated syntax file for use.\n"
-  printf "${BLDTXT}vim${NRMTXT} - Applies the changes to .vimrc to enable slackdoc syntax highlighting.\n"
-  printf "\n"
+	printf "\n${BLDTXT}Slackware Documentation Project Off-line Tools${NRMTXT}\n"
+	printf "${BLDTXT}Version: ${NRMTXT}${VERSION}\n"
+	printf "\n"
+	printf "${BLDTXT}Options:${NRMTXT}\n"
+	printf '%s\n' --------------------
+	printf "${BLDTXT}help${NRMTXT} - Displays this dialog\n"
+	printf "\n"
+	printf "${BLDTXT}fetch${NRMTXT} - fetches a wiki formatted page form docs.slackware.com.\n"
+	printf "	${BLDTXT}URL${NRMTXT} - can be from the site root or the whole address.\n"
+	printf "		${BLDTXT}[Destination Directory]${NRMTXT} - if ommited it will be in the pwd.\n"
+	printf "\n"
+	printf "	${BLDTXT}templates${NRMTXT} - can be from the site root or the whole address.\n"
+	printf "\n"
+	printf "${BLDTXT}templates${NRMTXT} - Displays a list of templates that are available.\n"
+	printf "\n"
+	printf "${BLDTXT}new${NRMTXT} - creates a new document based on a template.\n"
+	printf "	${BLDTXT}index_number${NRMTXT} - template index number.\n"
+	printf "		${BLDTXT}title${NRMTXT} - document title."
+	printf "\n"
+	printf "${BLDTXT}syntax${NRMTXT} - Applies the associated syntax file for use.\n"
+	printf "	${BLDTXT}vim${NRMTXT} - Applies the changes to .vimrc to enable slackdoc syntax highlighting.\n"
+	printf "\n"
 }
 
 case "${1}" in
-  fetch)
-    if [ "${2}" = "templates" ]; then
-      # If too many args then display help
-      if test $# -le 2
-      then
-	BuildStructure
-        PullTemplates
-      else
-        printf "${REDTXT}Too Many Arguments${NRMTXT}\n"
-        DisplayHelp
-        exit 1
-      fi
-    else
-      # If too many args then display help
-      if [[ $# -le 3 ]]; then
-        # If no 3rd arg then download to pwd
-        if [ -z "${3}" ]; then
-	  BuildStructure
-          PullPage ${2} ${TEMPLATE_DIR}
-        else
-          if [ -d ${3} ]; then
-            PullPage ${2} ${3}
-          else
-            printf "${REDTXT}The selected directory does not exist.${NRMTXT}\n"
-            exit 1
-          fi
-        fi
-        echo "${RTRN}"
-      else
-        DisplayHelp
-        exit 1
-      fi
-    fi
-    ;;
-  syntax)
-    # If too many args then display help
-    if [[ $# -le 2 ]]; then
-      case "${2}" in
-        vim)
-	  BuildStructure
-          VimSyntax
-          ;;
-        *)
-          DisplayHelp
-          exit 1
-          ;;
-      esac 
-    else
-      DisplayHelp
-      exit 1
-    fi
-    ;;
-  help)
-    DisplayHelp
-    ;;
-  *)
-    DisplayHelp
-    exit 1
-    ;;
+	fetch)
+		if [ "${2}" = "templates" ]; then
+			# If too many args then display help
+			if test $# -le 2
+			then
+				BuildStructure
+				PullTemplates
+			else
+				printf "${REDTXT}Too Many Arguments${NRMTXT}\n"
+				DisplayHelp
+				exit 1
+			fi
+		else
+			# If too many args then display help
+			if [[ $# -le 3 ]]; then
+				# If no 3rd arg then download to pwd
+				if [ -z "${3}" ]; then
+					BuildStructure
+					PullPage ${2} ${TEMPLATE_DIR}
+				else
+					if [ -d ${3} ]; then
+						PullPage ${2} ${3}
+					else
+						printf "${REDTXT}The selected directory does not exist.${NRMTXT}\n"
+						exit 1
+					fi
+				fi
+				echo "${RTRN}"
+			else
+				DisplayHelp
+				exit 1
+			fi
+		fi
+		;;
+	syntax)
+		# If too many args then display help
+		if [[ $# -le 2 ]]; then
+			case "${2}" in
+			vim)
+				BuildStructure
+				VimSyntax
+				;;
+			*)
+				DisplayHelp
+				exit 1
+				;;
+			esac 
+		else
+			DisplayHelp
+			exit 1
+		fi
+		;;
+	templates)
+		AvailableTemplates
+		;;
+	new)
+		# Check the number of arguments
+		if [[ $# != 3 ]]; then
+				AvailableTemplates
+			exit 1
+		# Check if $2 is a digit
+		elif [[ "$2" = *[[:digit:]]* ]]; then
+			# Check if $2 is within the template index range
+			if [[ "$2" -gt ${#TEMPS[*]} ]]; then
+				AvailableTemplates
+				printf "\nTemplate index out of range!\n\n"
+				exit 1
+			else
+					# Create a new document based on a template
+				TEMPLATE_IND=$2
+				DOC_TITLE=$3
+				CreateNew
+			fi
+		else
+			AvailableTemplates
+			exit 1
+		fi
+		;;
+	copy)
+		;;
+	help)
+		DisplayHelp
+		;;
+	*)
+		DisplayHelp
+		exit 1
+	;;
 esac
 
 exit 0
