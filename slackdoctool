@@ -38,9 +38,9 @@ TEMPLATE_IND=""
 DOC_TITLE=${DOC_TITLE:-"new"}
 
 # Currently pointing tomf_test, needs to be movedto master when stable
-GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/master"
-VERSION_URL="${GIT_URL}/README"
-SCRIPT_URL="${GIT_URL}/slackdoctool"
+#GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/master"
+#VERSION_URL="${GIT_URL}/current_version.txt"
+#SCRIPT_URL="${GIT_URL}/slackdoctool"
 
 CWD=`pwd`
 
@@ -261,7 +261,12 @@ CopyToClipboard()
 }
 
 CheckUpdate() {
-	NEW_VERSION="$(curl ${VERSION_URL})"
+# Halting process until a clean download location can be found
+#  github encodes extra data when pulling text files
+
+				NEW_VERSION="$(lynx -dump ${VERSION_URL})"
+	echo "$VERSION $NEW_VERSION"
+	exit 0
 	printf "\n${BLDTXT}Checking for an updated script.${NRMTXT}\n\n"
 	if [ ! "${NEW_VERSION}" = "${VERSION}" ]; then
 		printf "Your copy is up to date\n\n"
@@ -318,8 +323,8 @@ DisplayHelp() {
 	printf "${BLDTXT}copy${NRMTXT} - Copies the contents of a file to the clipboard.\n"
 	printf "  ${BLDTXT}{FileName}${NRMTXT} - The file to copy.\n"
 	printf "\n"
-	printf "${BLDTXT}update${NRMTXT} - Check for and download this scripts update\n"
-	printf "\n"
+#	printf "${BLDTXT}update${NRMTXT} - Check for and download this scripts update\n"
+#	printf "\n"
 }
 
 case "${1}" in
@@ -416,9 +421,9 @@ case "${1}" in
 			exit 1
 		fi
 		;;
-	update)
-		CheckUpdate	
-		;;
+#	update)
+#		CheckUpdate	
+#		;;
 	help)
 		DisplayHelp
 		;;
