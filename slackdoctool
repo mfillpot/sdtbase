@@ -15,12 +15,8 @@ VERSION="0.0.2"
 #		1. See if the script is causing terminal wrapping issues from font colors and fix them
 #		4. Add an option to fetch from a list
 #		5. Set the script to block execution from root
-# 	6. Set the fetch to grab the original example syntax file from wiki:syntax
-# 	7. Remove the example syntax file created for this package
-#			7a. Find a way to dump the syntax files to the site to be fetched
 #		9. Set an update feature that will grab the new script from github
 #		10. Set the template fetch to pull from list on wiki
-#		11. As all docs are removed, remove the CC license
 #		12. Add a page to the wiki with vim optimizations and refer to them in the script
 #		13. Clean up the script
 #  
@@ -241,12 +237,12 @@ CopyToClipboard()
 				case ${yn} in
 				[Yy*]* )
 					cat ${1} | xclip -selection clipboard
-					echo "The content of ${1} has been copied to clipboard."
+					echo "The contents of ${1} has been copied to clipboard."
 					return 1
 					;;
 				esac
 			else
-				printf "${REDTXT}xclip is not installed, the contens will need to be manually copied$.{NRMTXT}"
+				printf "${REDTXT}xclip is not installed, the contens will need to be manually copied$.${NRMTXT}"
 				return 1
 			fi
 		else
