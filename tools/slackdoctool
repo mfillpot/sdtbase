@@ -12,20 +12,20 @@ VERSION="0.0.2"
 
 
 #------ TODO List -------
-#	1. See if the script is causing terminal wrapping issues from font colors and fix them
+#		1. See if the script is causing terminal wrapping issues from font colors and fix them
 # F	2. Post the kate syntax info as output from the command "syntax kate"
 # F	3. output info explaining what "syntax vim" is doing
-#	4. Add an option to fetch from a list
-#	5. Set the script to block execution from root
+#		4. Add an option to fetch from a list
+#		5. Set the script to block execution from root
 # 	6. Set the fetch to grab the original example syntax file from wiki:syntax
 # 	7. Remove the example syntax file created for this package
-#		7a. Find a way to dump the syntax files to the site to be fetched
+#			7a. Find a way to dump the syntax files to the site to be fetched
 # H	8. Add the option to start working from a template
-#	9. Set an update feature that will grab the new script from github
-#	10. Set the template fetch to pull from list on wiki
-#	11. As all docs are removed, remove the CC license
-#	12. Add a page to the wiki with vim optimizations and refer to them in the script
-#	13. Clean up the script
+#		9. Set an update feature that will grab the new script from github
+#		10. Set the template fetch to pull from list on wiki
+#		11. As all docs are removed, remove the CC license
+#		12. Add a page to the wiki with vim optimizations and refer to them in the script
+#		13. Clean up the script
 #  
 
 
@@ -267,19 +267,22 @@ DisplayHelp() {
 	printf "${BLDTXT}help${NRMTXT} - Displays this dialog\n"
 	printf "\n"
 	printf "${BLDTXT}fetch${NRMTXT} - fetches a wiki formatted page form docs.slackware.com.\n"
-	printf "	${BLDTXT}URL${NRMTXT} - can be from the site root or the whole address.\n"
-	printf "		${BLDTXT}[Destination Directory]${NRMTXT} - if ommited it will be in the pwd.\n"
+	printf "  ${BLDTXT}URL${NRMTXT} - can be from the site root or the whole address.\n"
+	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will be in the pwd.\n"
 	printf "\n"
-	printf "	${BLDTXT}templates${NRMTXT} - can be from the site root or the whole address.\n"
+	printf "  ${BLDTXT}templates${NRMTXT} - can be from the site root or the whole address.\n"
 	printf "\n"
 	printf "${BLDTXT}templates${NRMTXT} - Displays a list of templates that are available.\n"
 	printf "\n"
 	printf "${BLDTXT}new${NRMTXT} - creates a new document based on a template.\n"
-	printf "	${BLDTXT}index_number${NRMTXT} - template index number.\n"
-	printf "		${BLDTXT}title${NRMTXT} - document title."
+	printf "  ${BLDTXT}index_number${NRMTXT} - template index number.\n"
+	printf "    ${BLDTXT}title${NRMTXT} - document title.\n"
 	printf "\n"
 	printf "${BLDTXT}syntax${NRMTXT} - Applies the associated syntax file for use.\n"
-	printf "	${BLDTXT}vim${NRMTXT} - Applies the changes to .vimrc to enable slackdoc syntax highlighting.\n"
+	printf "  ${BLDTXT}vim${NRMTXT} - Applies the changes to .vimrc to enable slackdoc syntax highlighting.\n"
+	printf "\n"
+	printf "${BLDTXT}copy${NRMTXT} - Copies the contents of a file to the clipboard.\n"
+	printf "  ${BLDTXT}{FileName}${NRMTXT} - The file to copy.\n"
 	printf "\n"
 }
 
