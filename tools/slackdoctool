@@ -13,14 +13,11 @@ VERSION="0.0.2"
 
 #------ TODO List -------
 #		1. See if the script is causing terminal wrapping issues from font colors and fix them
-# F	2. Post the kate syntax info as output from the command "syntax kate"
-# F	3. output info explaining what "syntax vim" is doing
 #		4. Add an option to fetch from a list
 #		5. Set the script to block execution from root
 # 	6. Set the fetch to grab the original example syntax file from wiki:syntax
 # 	7. Remove the example syntax file created for this package
 #			7a. Find a way to dump the syntax files to the site to be fetched
-# H	8. Add the option to start working from a template
 #		9. Set an update feature that will grab the new script from github
 #		10. Set the template fetch to pull from list on wiki
 #		11. As all docs are removed, remove the CC license
@@ -159,7 +156,12 @@ VimSyntax() {
 	echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
 	echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNTAXFILE}">>${VIMRC}
 
-	printf "${BLDTXT}  The file ${VIMRC} has been updated${NRMTXT}\n"
+	#printf "${BLDTXT}  The file ${VIMRC} has been updated${NRMTXT}\n"
+
+	printf "\n${BLDTXT}The script has added the following lines to your vimrc file${NRMTXT}\n\n"
+	cat ${VIMRC} | grep ${FILETYPE}
+	printf "\n"
+
 }
 
 PullTemplates() {
@@ -280,6 +282,7 @@ DisplayHelp() {
 	printf "\n"
 	printf "${BLDTXT}syntax${NRMTXT} - Applies the associated syntax file for use.\n"
 	printf "  ${BLDTXT}vim${NRMTXT} - Applies the changes to .vimrc to enable slackdoc syntax highlighting.\n"
+	printf "  ${BLDTXT}kate${NRMTXT} - Display instruction for enabling syntax highlighting in kate.\n"
 	printf "\n"
 	printf "${BLDTXT}copy${NRMTXT} - Copies the contents of a file to the clipboard.\n"
 	printf "  ${BLDTXT}{FileName}${NRMTXT} - The file to copy.\n"
@@ -328,6 +331,9 @@ case "${1}" in
 			vim)
 				BuildStructure
 				VimSyntax
+				;;
+			kate)
+				printf "\nTo implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to ${BLDTXT}Tools -> Highlighting -> Markup -> Mediawiki${NRMTXT}.\n\n"
 				;;
 			*)
 				DisplayHelp
