@@ -23,18 +23,24 @@ VERSION="0.0.2"
 
 
 # Define the path to the repo directory
-REPO_PATH=$(dirname $(cd `dirname "${BASH_SOURCE[0]}"` && pwd) )
+#REPO_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"`
 
 # Define the variables
 EXTENSION="slackdoc"
 FILETYPE="slackdocs"
 SYNTAXFILE="slackdocs.vim"
 SD_DIR="${HOME}/slackdocs"
-SYNTAX_DIR="${REPO_PATH}/syntax_files"
+#SYNTAX_DIR="${REPO_PATH}/syntax_files"
 #TOOLS_DIR="tools"
 TEMPLATE_DIR="${SD_DIR}/templates"
 TEMPLATE_IND=""
 DOC_TITLE=${DOC_TITLE:-"new"}
+
+# Currently pointing tomf_test, needs to be movedto master when stable
+GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/master"
+VERSION_URL="${GIT_URL}/README"
+SCRIPT_URL="${GIT_URL}/slackdoctool"
 
 CWD=`pwd`
 
@@ -254,6 +260,30 @@ CopyToClipboard()
 	fi
 }
 
+CheckUpdate() {
+	NEW_VERSION="$(curl ${VERSION_URL})"
+	printf "\n${BLDTXT}Checking for an updated script.${NRMTXT}\n\n"
+	if [ ! "${NEW_VERSION}" = "${VERSION}" ]; then
+		printf "Your copy is up to date\n\n"
+	else 
+		printf "${BLDTXT}A new version is available.${NRMTXT}\n"
+		printf -p "Would you like to fetch version ${NEW_VERSION}? " yn 
+		case ${yn} in
+		[Yy*]* )
+			wget ${SCRIPT_URL} --output-document=${SCRIPT_PATH}
+			if [ "$?" = "0" ]; then
+				printf "The script has been updated to version ${VERSION}.\n"
+			else
+				printf "${REDTXT}The update failed, try again later.${NRMTXT}\n"
+			fi
+			;;
+		* )
+			printf "${REDTXT}Download Decline, terminating action.${NRMTXT}\n"
+			;;
+		esac
+	fi
+}
+
 DisplayHelp() {
 # Displays the help text
 
@@ -287,6 +317,8 @@ DisplayHelp() {
 	printf "\n"
 	printf "${BLDTXT}copy${NRMTXT} - Copies the contents of a file to the clipboard.\n"
 	printf "  ${BLDTXT}{FileName}${NRMTXT} - The file to copy.\n"
+	printf "\n"
+	printf "${BLDTXT}update${NRMTXT} - Check for and download this scripts update\n"
 	printf "\n"
 }
 
@@ -383,6 +415,9 @@ case "${1}" in
 			DisplayHelp
 			exit 1
 		fi
+		;;
+	update)
+		CheckUpdate	
 		;;
 	help)
 		DisplayHelp
