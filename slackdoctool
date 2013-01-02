@@ -277,6 +277,7 @@ DisplayHelp() {
 	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will be in the pwd.\n"
 	printf "\n"
 	printf "  ${BLDTXT}templates${NRMTXT} - can be from the site root or the whole address.\n"
+	printf "  ${BLDTXT}syntax${NRMTXT} - fetch the example syntax file from slackdocs wiki.\n"
 	printf "\n"
 	printf "${BLDTXT}templates${NRMTXT} - Displays a list of templates that are available.\n"
 	printf "\n"
@@ -306,6 +307,9 @@ case "${1}" in
 				DisplayHelp
 				exit 1
 			fi
+		elif [ "${2}" = "syntax" ]; then
+			PullPage "wiki:syntax" ${SD_DIR}
+			printf "\nThe example syntax file is now located at ${SD_DIR}/wiki-syntax.slackdoc\n\n"
 		else
 			# If too many args then display help
 			if [[ $# -le 3 ]]; then
