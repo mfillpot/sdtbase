@@ -23,7 +23,7 @@ VERSION="0.0.2"
 
 
 # Define the path to the repo directory
-#REPO_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+REPO_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"`
 
 # Define the variables
@@ -31,7 +31,7 @@ EXTENSION="slackdoc"
 FILETYPE="slackdocs"
 SYNTAXFILE="slackdocs.vim"
 SD_DIR="${HOME}/slackdocs"
-#SYNTAX_DIR="${REPO_PATH}/syntax_files"
+SYNTAX_DIR="${REPO_PATH}/syntax_files"
 #TOOLS_DIR="tools"
 TEMPLATE_DIR="${SD_DIR}/templates"
 TEMPLATE_IND=""
