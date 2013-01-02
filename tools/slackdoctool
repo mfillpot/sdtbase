@@ -7,7 +7,7 @@ VERSION="0.0.2"
 # Description
 # -------------------------------------------------------
 # Toolkit used to simplify offline editing of slackdocs
-#  wiki content
+#  wiki content for http://docs.slackware.com
 #
 
 
@@ -262,6 +262,10 @@ DisplayHelp() {
 # Displays the help text
 
 	printf "\n${BLDTXT}Slackware Documentation Project Off-line Tools${NRMTXT}\n"
+	printf "\n"
+	printf "${BLDTXT}Slackdocs Website:${NRMTXT} http://docs.slackware.com\n"
+	printf "${BLDTXT}Project URL:${NRMTXT} https://github.com/mfillpot/slackdoc_templates\n"
+	printf "\n"
 	printf "${BLDTXT}Version: ${NRMTXT}${VERSION}\n"
 	printf "\n"
 	printf "${BLDTXT}Options:${NRMTXT}\n"
