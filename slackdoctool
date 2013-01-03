@@ -331,6 +331,7 @@ DisplayHelp() {
 	printf "  ${BLDTXT}syntax${NRMTXT} - fetch the example syntax file from slackdocs wiki.\n"
 	printf "\n"
 	printf "${BLDTXT}templates${NRMTXT} - Displays a list of templates that are available.\n"
+	printf "  ${BLDTXT}[refresh]${NRMTXT} - Optional: Refreshes a list of available templates.\n"
 	printf "\n"
 	printf "${BLDTXT}new${NRMTXT} - creates a new document based on a template.\n"
 	printf "  ${BLDTXT}index_number${NRMTXT} - template index number.\n"
@@ -414,7 +415,15 @@ case "${1}" in
 		fi
 		;;
 	templates)
-		AvailableTemplates
+		if [[ $# -eq 1 ]]; then
+			AvailableTemplates
+		elif [[ $# -eq 2 && ${2} == "refresh" ]]; then
+			RefreshTemplates
+			AvailableTemplates
+		else
+			DisplayHelp
+			exit 1
+		fi
 		;;
 	new)
 		# Check the number of arguments
