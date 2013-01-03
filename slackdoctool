@@ -173,10 +173,14 @@ PullTemplates() {
 		mkdir ${TEMPLATE_DIR}
 	fi
 	
+	if [ -v ${TEMPS} ]; then
+		RefreshTemplates
+	fi
+
 	if [ ! -f ${TEMP_FILE} ]; then
 		RefreshTemplates
 	fi
-		
+
 	for TEMPLATE in "${TEMPS[@]}"
 	do
 		PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
@@ -277,7 +281,7 @@ CheckUpdate() {
 # Halting process until a clean download location can be found
 #  github encodes extra data when pulling text files
 
-				NEW_VERSION="$(lynx -dump ${VERSION_URL})"
+	NEW_VERSION="$(lynx -dump ${VERSION_URL})"
 	echo "$VERSION $NEW_VERSION"
 	exit 0
 	printf "\n${BLDTXT}Checking for an updated script.${NRMTXT}\n\n"
