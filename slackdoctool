@@ -43,6 +43,7 @@ DOC_TITLE=${DOC_TITLE:-"new"}
 #SCRIPT_URL="${GIT_URL}/slackdoctool"
 TEMP_URL="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 TEMP_FILE="${SD_DIR}/templates.txt"
+TEMPS=( $(cat $TEMP_FILE) )
 CWD=`pwd`
 
 # Define a variable for return strings
@@ -173,13 +174,7 @@ PullTemplates() {
 		mkdir ${TEMPLATE_DIR}
 	fi
 	
-	if [ -v ${TEMPS} ]; then
-		RefreshTemplates
-	fi
-
-	if [ ! -f ${TEMP_FILE} ]; then
-		RefreshTemplates
-	fi
+	SetTemps
 
 	for TEMPLATE in "${TEMPS[@]}"
 	do
@@ -188,7 +183,13 @@ PullTemplates() {
 	printf "${BLDTXT} All templates have been successfully retreived.${NRMTXT}\n"
 }
 
-
+SetTemps() {
+	if [ ! -f ${TEMP_FILE} ]; then
+		RefreshTemplates
+	else
+		TEMPS=( $(cat ${TEMP_FILE}) )
+	fi
+}
 RefreshTemplates() {
 	# Refresh the list of available templates
 	if [ ! -f ${TEMP_FILE} ]; then
@@ -202,11 +203,8 @@ RefreshTemplates() {
 AvailableTemplates() {
 	# Displays a list of available templates and usage
 	
-	if [ ! -f ${TEMP_FILE} ]; then
-		RefreshTemplates
-	fi
+	SetTemps
 
-	TEMPS=( $(cat $TEMP_FILE) )
 	printf "\nTo create a new document using a template type:\n"
 	printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
 	printf "\nThe following templates are available:\n\n"
@@ -227,7 +225,7 @@ CreateNew() {
 	if [ ! -d ${TEMPLATE_DIR} ]; then
 		PullTemplates
 	fi
-
+	
 	TEMPLATE_FILE=${TEMPLATE_DIR}/${TEMPS[${TEMPLATE_IND}]}.${EXTENSION}
 	OUTPUT_FILE=${SD_DIR}/${DOC_TITLE}.${EXTENSION}
 
@@ -432,6 +430,7 @@ case "${1}" in
 			exit 1
 		# Check if $2 is a digit
 		elif [[ "$2" = *[[:digit:]]* ]]; then
+			SetTemps			
 			# Check if $2 is within the template index range
 			if [[ "$2" -gt ${#TEMPS[*]} ]]; then
 				AvailableTemplates
