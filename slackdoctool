@@ -43,7 +43,6 @@ DOC_TITLE=${DOC_TITLE:-"new"}
 #SCRIPT_URL="${GIT_URL}/slackdoctool"
 TEMP_URL="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 TEMP_FILE="${SD_DIR}/templates.txt"
-TEMPS=( $(cat $TEMP_FILE) )
 CWD=`pwd`
 
 # Define a variable for return strings
