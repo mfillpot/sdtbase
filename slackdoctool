@@ -191,6 +191,9 @@ PullTemplates() {
 
 RefreshTemplates() {
 	# Refresh the list of available templates
+	if [ ! -f ${TEMP_FILE} ]; then
+		BuildStructure
+	fi
 	echo "Refreshing the list of available templates..."
 	lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
 	TEMPS=( $(cat $TEMP_FILE) )
@@ -202,12 +205,15 @@ AvailableTemplates() {
 	if [ ! -f ${TEMP_FILE} ]; then
 		RefreshTemplates
 	fi
+
+	if [ -v ${TEMPS} ]; then
+		RefreshTemplates
+	fi
 	
 	printf "\nTo create a new document using a template type:\n"
 	printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
 	printf "\nThe following templates are available:\n\n"
 		
-	TEMPS=( $(cat ${TEMP_FILE}) )
 	for i in ${!TEMPS[*]}
 	do
 		printf "%4d: %s\n" $i ${TEMPS[$i]}
