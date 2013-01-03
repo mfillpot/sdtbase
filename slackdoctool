@@ -41,14 +41,12 @@ DOC_TITLE=${DOC_TITLE:-"new"}
 #GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/master"
 #VERSION_URL="${GIT_URL}/current_version.txt"
 #SCRIPT_URL="${GIT_URL}/slackdoctool"
-
+TEMP_URL="http://docs.slackware.com/wiki:user:mfillpot:template_list"
+TEMP_FILE="${SD_DIR}/templates.txt"
 CWD=`pwd`
 
 # Define a variable for return strings
 RTRN=""
-
-# List of available templates
-TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackware )
 
 # Set Output font colors
 BLDTXT='\e[1m%s'
@@ -174,29 +172,44 @@ PullTemplates() {
 	if [ ! -d ${TEMPLATE_DIR} ]; then
 		mkdir ${TEMPLATE_DIR}
 	fi
-
-	local TEMPS=( howtos howtos_de howtos_es howtos_fr howtos_pl howtos_ru howtos_sr security slackware )
-
+	
+	if [ ! -f ${TEMP_FILE} ]; then
+		RefreshTemplates
+	fi
+		
 	for TEMPLATE in "${TEMPS[@]}"
 	do
 		PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
 	done
-
 	printf "${BLDTXT} All templates have been successfully retreived.${NRMTXT}\n"
 }
 
+
+RefreshTemplates() {
+	# Refresh the list of available templates
+	echo "Refreshing the list of available templates..."
+	lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
+	TEMPS=( $(cat $TEMP_FILE) )
+}
+
 AvailableTemplates() {
-# Displays a list of available templates and usage
-			
+	# Displays a list of available templates and usage
+	
+	if [ ! -f ${TEMP_FILE} ]; then
+		RefreshTemplates
+	fi
+	
 	printf "\nTo create a new document using a template type:\n"
 	printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
 	printf "\nThe following templates are available:\n\n"
-							
+		
+	TEMPS=( $(cat ${TEMP_FILE}) )
 	for i in ${!TEMPS[*]}
 	do
 		printf "%4d: %s\n" $i ${TEMPS[$i]}
 	done
 	printf "\n"
+	
 }
 
 CreateNew() {
@@ -327,6 +340,12 @@ DisplayHelp() {
 #	printf "\n"
 }
 
+# Check if the script is run as root
+if [ "$(id -u)" = "0" ]; then
+   echo "Do not run the script as root." 1>&2
+   exit 1
+fi
+
 case "${1}" in
 	fetch)
 		if [ "${2}" = "templates" ]; then
@@ -335,6 +354,7 @@ case "${1}" in
 			then
 				BuildStructure
 				PullTemplates
+				AvailableTemplates
 			else
 				printf "${REDTXT}Too Many Arguments${NRMTXT}\n"
 				DisplayHelp
