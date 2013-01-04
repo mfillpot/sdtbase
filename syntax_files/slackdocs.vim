@@ -2,7 +2,7 @@
 " Language:     slackdocs
 " Maintainer:   Matthew Fillpot <mfilpot at gmail dot com>
 " Last Change:  2012-12-24
-" Version:      1
+" Version:      0.0.1
 " URL:          https://github.com/mfillpot/slackdoc_templates
 " License:      BSD
 " Reference:    http://www.dokuwiki.org/syntax
