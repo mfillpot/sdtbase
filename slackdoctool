@@ -14,9 +14,6 @@ VERSION="0.0.2"
 #------ TODO List -------
 #		1. See if the script is causing terminal wrapping issues from font colors and fix them
 #		4. Add an option to fetch from a list
-#		5. Set the script to block execution from root
-#		9. Set an update feature that will grab the new script from github
-#		10. Set the template fetch to pull from list on wiki
 #		12. Add a page to the wiki with vim optimizations and refer to them in the script
 #		13. Clean up the script
 #  
