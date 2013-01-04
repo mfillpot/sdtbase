@@ -23,8 +23,9 @@ VERSION="0.0.2"
 
 
 # Define the path to the repo directory
-REPO_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
-SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"`
+#REPO_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+TMP_DIR="/tmp"
+#SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"`
 
 # Define the variables
 EXTENSION="slackdoc"
@@ -38,15 +39,14 @@ TEMPLATE_IND=""
 DOC_TITLE=${DOC_TITLE:-"new"}
 
 # Currently pointing tomf_test, needs to be movedto master when stable
-#GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/master"
-#VERSION_URL="${GIT_URL}/current_version.txt"
-#SCRIPT_URL="${GIT_URL}/slackdoctool"
+GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/mfillpot"
+VERSION_URL="${GIT_URL}/versions.txt"
+SCRIPT_URL="${GIT_URL}/slackdoctool"
+SYNTAX_URL="${GIT_URL}/syntax_files"
+
 TEMP_URL="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 TEMP_FILE="${SD_DIR}/templates.txt"
-CWD=`pwd`
-
-# Define a variable for return strings
-RTRN=""
+#CWD=`pwd`
 
 # Set Output font colors
 BLDTXT='\e[1m%s'
@@ -281,6 +281,7 @@ CheckUpdate() {
 # Halting process until a clean download location can be found
 #  github encodes extra data when pulling text files
 
+	echo "${VERSION_URL}"
 	NEW_VERSION="$(lynx -dump ${VERSION_URL})"
 	echo "$VERSION $NEW_VERSION"
 	exit 0
@@ -383,7 +384,6 @@ case "${1}" in
 						exit 1
 					fi
 				fi
-				echo "${RTRN}"
 			else
 				DisplayHelp
 				exit 1
@@ -455,9 +455,9 @@ case "${1}" in
 			exit 1
 		fi
 		;;
-#	update)
-#		CheckUpdate	
-#		;;
+	update)
+		CheckUpdate	
+		;;
 	help)
 		DisplayHelp
 		;;
