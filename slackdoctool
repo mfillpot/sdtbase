@@ -281,21 +281,18 @@ CheckUpdate() {
 # Halting process until a clean download location can be found
 #  github encodes extra data when pulling text files
 
-	echo "${VERSION_URL}"
-	NEW_VERSION="$(lynx -dump ${VERSION_URL})"
-	echo "$VERSION $NEW_VERSION"
-	exit 0
+	NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
 	printf "\n${BLDTXT}Checking for an updated script.${NRMTXT}\n\n"
-	if [ ! "${NEW_VERSION}" = "${VERSION}" ]; then
+	if [ "${NEW_VERSION}" = "${VERSION}" ]; then
 		printf "Your copy is up to date\n\n"
 	else 
 		printf "${BLDTXT}A new version is available.${NRMTXT}\n"
-		printf -p "Would you like to fetch version ${NEW_VERSION}? " yn 
+		read -p "Would you like to fetch version ${NEW_VERSION}? " yn 
 		case ${yn} in
 		[Yy*]* )
-			wget ${SCRIPT_URL} --output-document=${SCRIPT_PATH}
+			wget ${SCRIPT_URL} --output-document=${TMP_DIR}/slackdoctool
 			if [ "$?" = "0" ]; then
-				printf "The script has been updated to version ${VERSION}.\n"
+				printf "Version ${VERSION} has been saved to${TMP_DIR}/slackdoctool.\n"
 			else
 				printf "${REDTXT}The update failed, try again later.${NRMTXT}\n"
 			fi
@@ -342,8 +339,8 @@ DisplayHelp() {
 	printf "${BLDTXT}copy${NRMTXT} - Copies the contents of a file to the clipboard.\n"
 	printf "  ${BLDTXT}{FileName}${NRMTXT} - The file to copy.\n"
 	printf "\n"
-#	printf "${BLDTXT}update${NRMTXT} - Check for and download this scripts update\n"
-#	printf "\n"
+	printf "${BLDTXT}update${NRMTXT} - Check for and download this scripts update\n"
+	printf "\n"
 }
 
 # Check if the script is run as root
