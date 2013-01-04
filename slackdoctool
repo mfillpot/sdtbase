@@ -20,17 +20,14 @@ VERSION="0.0.2"
 
 
 # Define the path to the repo directory
-#REPO_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 TMP_DIR="/tmp"
-#SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"`
 
 # Define the variables
 EXTENSION="slackdoc"
 FILETYPE="slackdocs"
-SYNTAXFILE="slackdocs.vim"
+SYNF_VIM="slackdocs.vim"
 SD_DIR="${HOME}/slackdocs"
 SYNTAX_DIR="${REPO_PATH}/syntax_files"
-#TOOLS_DIR="tools"
 TEMPLATE_DIR="${SD_DIR}/templates"
 TEMPLATE_IND=""
 DOC_TITLE=${DOC_TITLE:-"new"}
@@ -43,7 +40,6 @@ SYNTAX_URL="${GIT_URL}/syntax_files"
 
 TEMP_URL="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 TEMP_FILE="${SD_DIR}/templates.txt"
-#CWD=`pwd`
 
 # Set Output font colors
 BLDTXT='\e[1m%s'
@@ -143,7 +139,7 @@ VimSyntax() {
 
 	local VIMRC="${HOME}/.vimrc"
 
-	cp ${SYNTAX_DIR}/${SYNTAXFILE} ${SD_DIR}/.${SYNTAXFILE}
+	wget ${SYNTAX_URL}/${SYNF_VIM} --output-document=${SD_DIR}/.${SYNF_VIM}
 
 	# removes existing slackdoc syntax template lines if they exist
 	sed -i /${FILETYPE}/d ${VIMRC}
@@ -151,7 +147,7 @@ VimSyntax() {
 	# Write the new lines to the vimrc file
 	echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
 	echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
-	echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNTAXFILE}">>${VIMRC}
+	echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${VIMSYNTAXFILE}">>${VIMRC}
 
 	#printf "${BLDTXT}  The file ${VIMRC} has been updated${NRMTXT}\n"
 
@@ -163,8 +159,6 @@ VimSyntax() {
 
 PullTemplates() {
 # Pulls the listed template files into the templates directory
-
-#local TEMPPAGE="http://docs.slackware.com/wiki:user:mfillpot:template_list"
 
 	if [ ! -d ${TEMPLATE_DIR} ]; then
 		mkdir ${TEMPLATE_DIR}
