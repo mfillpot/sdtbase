@@ -233,7 +233,9 @@ CreateNew() {
 			CopyToClipboard ${OUTPUT_FILE} "1"
 		fi
 	else
-		echo "There have been problems accessing ${TEMPLATE_FILE}"
+		printf "There have been problems accessing ${TEMPLATE_FILE}\n"
+		printf "\nPlease download template files first by running:\n"
+		printf "\n${BLDTXT}slackdoctool fetch templates${NRMTXT}\n\n"
 	fi
 }
 
