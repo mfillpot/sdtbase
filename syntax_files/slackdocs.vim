@@ -2,7 +2,7 @@
 " Language:     slackdocs
 " Maintainer:   Matthew Fillpot <mfilpot at gmail dot com>
 " Last Change:  2012-12-24
-" Version:      0.0.1
+" Version:      0.0.2
 " URL:          https://github.com/mfillpot/slackdoc_templates
 " License:      BSD
 " Reference:    http://www.dokuwiki.org/syntax
@@ -137,8 +137,8 @@ syn region slackdocsEmbedded start="<PHP>" end="</PHP>"
 " Keycode Entries
 "syn region slackdocsKeycode start="<keycode>" end="</keycode>"
 "syn region slackdocsCodeBlockPlain start="^\(  \|\t\)\s*[^*-]" end="$"
-syn region slackdocsKeycodeBlock start="<keycode>"rs=s end="</keycode>"re=e contains=slackdocsKeycodeBlockContent keepend extend
-syn region slackdocsKeycodeBlockContent start=">"ms=e+1 end="</keycode>"me=s-1 contained
+syn region slackdocsKeycodeBlock start="<key>"rs=s end="</key>"re=e contains=slackdocsKeycodeBlockContent keepend extend
+syn region slackdocsKeycodeBlockContent start=">"ms=e+1 end="</key>"me=s-1 contained
 
 " Note Entries
 syn region slackdocsNoteBlock start="<note\(\s[^>]\+\)\?>"rs=s end="</note>"re=e contains=@slackdocsTextItems keepend 
