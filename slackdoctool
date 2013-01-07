@@ -103,29 +103,35 @@ PullPage() {
 	fi
 
   # If output file exists remove it
-	if [ -e ${OF} ]; then
-		rm ${OF}
+	if [ -e ${2}/${OF} ]; then
+		rm ${2}/${OF}
 	fi
 
 	# Append the base url to the page address
 	local PAGE=${SDBASE}/${PAGE}
 
-	if [ -e ${2}/${OF} ]; then
-		printf "${REDTXT}${OF} exists${NRMTXT}\n"
+	if [[ ${2} == *"/" ]]; then
+		local DESTDIR="${2}"
+	else
+		local DESTDIR="${2}/"
+	fi
+
+	if [ -e ${DESTDIR}${OF} ]; then
+		printf "${REDTXT}${DESTDIR}${OF} exists${NRMTXT}\n"
 		read -p "Would you like to overwrite it? " yn
 		case ${yn} in
 		[Yy]* )
 
-			rm ${2}/${OF}
+			rm ${DESTDIR}${OF}
 
-			FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${2}/${OF}
+			FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
 			;;
 		* )
 			printf ""
 			;;
 		esac
 	else
-		FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${2}/${OF}
+		FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
 	fi
 }
 
@@ -391,10 +397,10 @@ case "${1}" in
 				# If no 3rd arg then download to pwd
 				if [ -z "${3}" ]; then
 					BuildStructure
-					DestDir=${SD_DIR}
+					DEST_DIR=${SD_DIR}
 				else
 					if [ -d ${3} ]; then
-						DESTDIR=${3}
+						DEST_DIR=${3}
 					else
 						printf "${REDTXT}The selected directory does not exist.${NRMTXT}\n"
 						exit 1
