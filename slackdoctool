@@ -2,7 +2,7 @@
 # Author: Matthew Fillpot
 # Created: 2012-12-28
 # License: BSD
-VERSION="0.0.2"
+VERSION="0.0.1"
 #
 # Description
 # -------------------------------------------------------
@@ -13,7 +13,6 @@ VERSION="0.0.2"
 
 #------ TODO List -------
 #		1. See if the script is causing terminal wrapping issues from font colors and fix them
-#		4. Add an option to fetch from a list
 #		12. Add a page to the wiki with vim optimizations and refer to them in the script
 #		13. Clean up the script
 #  
@@ -141,6 +140,19 @@ FinishPull() {
 	else
 		printf "${BLDTXT} ${3} is ready to edit${NRMTXT}\n"
 	fi
+}
+
+PullFromList() {
+	# This function is intended to allow a user to specificy a text file
+	#  list of pages to retreive and pull them into the desired directory
+	#
+	# Arg1 = List File
+	# Arg2 = Destination Dir
+
+	while read PAG
+	do
+		PullPage ${PAG} ${2}
+	done < ${1}
 }
 
 VimSyntax() {
@@ -322,8 +334,12 @@ DisplayHelp() {
 	printf "${BLDTXT}help${NRMTXT} - Displays this dialog\n"
 	printf "\n"
 	printf "${BLDTXT}fetch${NRMTXT} - fetches a wiki formatted page form docs.slackware.com.\n"
-	printf "  ${BLDTXT}URL${NRMTXT} - can be from the site root or the whole address.\n"
-	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will be in the pwd.\n"
+	printf "  ${BLDTXT}{URL}${NRMTXT} - can be from the site root or the whole address.\n"
+	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will
+	\ be in the default slackdoc directory.\n"
+	printf "  ${BLDTXT}{FILE}${NRMTXT} - A file that contains a list of pages to fetch.\n"
+	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will
+	\ be in the default slackdoc directory.\n"
 	printf "\n"
 	printf "  ${BLDTXT}templates${NRMTXT} - can be from the site root or the whole address.\n"
 	printf "  ${BLDTXT}syntax${NRMTXT} - fetch the example syntax file from slackdocs wiki.\n"
@@ -375,14 +391,19 @@ case "${1}" in
 				# If no 3rd arg then download to pwd
 				if [ -z "${3}" ]; then
 					BuildStructure
-					PullPage ${2} ${TEMPLATE_DIR}
+					DestDir=${SD_DIR}
 				else
 					if [ -d ${3} ]; then
-						PullPage ${2} ${3}
+						DESTDIR=${3}
 					else
 						printf "${REDTXT}The selected directory does not exist.${NRMTXT}\n"
 						exit 1
 					fi
+				fi
+				if [ -f ${2} ]; then
+					PullFromList ${2} ${DEST_DIR}
+				else
+					PullPage ${2} ${DEST_DIR}
 				fi
 			else
 				DisplayHelp
