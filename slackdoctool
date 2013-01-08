@@ -218,7 +218,6 @@ VimSyntax() {
   printf "\n"
 }
 
-# CLEAN TO HERE
 PullTemplates() {
 # Pulls the listed template files into the templates directory
 
@@ -271,6 +270,7 @@ AvailableTemplates() {
   printf "\n"
 }
 
+# CLEAN TO HERE
 CreateNew() {
   # Copies a template into a new filename and sets it for editing
 
@@ -285,6 +285,9 @@ CreateNew() {
   OUTPUT_FILE=${SD_DIR}/${DOC_TITLE}.${EXTENSION}
 
   if [ -f ${TEMPLATE_FILE} ]; then
+
+    # Question: Why are the files being copied into the clipboard and opened
+    # in vim?
 
     # Check if the output file already exists. If so, edit it.
     if [ -f ${OUTPUT_FILE} ]; then
@@ -303,6 +306,7 @@ CreateNew() {
     printf "${NRMTXT}%s${BLDTXT} %s${NRMTXT}\n" \
       "Please download template files first by running:" \
         "slackdoctool fetch templates"
+    exit 1
   fi
 }
 
@@ -316,28 +320,29 @@ CopyToClipboard()
   local FILENAME=${1}
   local CONFS=${2}
 
+
+  ls /var/log/packages | grep "\<xclip\>" > /dev/null
+  if [ $? -eq 0 ]; then
+    printf "\n${ERRTXT}%s${NRMTXT}\n" \
+      "xclip is not installed, the contents will need to be manually copied."
+    return 1
+  fi
+
   if [ -f ${FILENAME} ]
   then
     if [ "${CONFS}" = "1" ]
     then
-      ls /var/log/packages | grep "\<xclip\>" > /dev/null
       # if xclip is installed on the system, 
       # copy the contents of the file to clipboard
-      if [ $? -eq 0 ]; then
-        read -p "Would you like the contents of ${FILENAME} to be copied to the clipboard [y/N]? " yn
-        case ${yn} in
-        [Yy*]* )
-          cat ${FILENAME} | xclip -selection clipboard
-          printf "\n${SCSTXT}%s${NRMTXT}\n" \
-            "The contents of ${FILENAME} has been copied to clipboard."
-          return 1
-          ;;
-        esac
-      else
-        printf "\n${ERRTXT}%s${NRMTXT}\n" \
-          "xclip is not installed, the contents will need to be manually copied$."
+      read -p "Would you like the contents of ${FILENAME} to be copied to the clipboard [y/N]? " yn
+      case ${yn} in
+      [Yy*]* )
+        cat ${FILENAME} | xclip -selection clipboard
+        printf "\n${SCSTXT}%s${NRMTXT}\n" \
+          "The contents of ${FILENAME} has been copied to clipboard."
         return 1
-      fi
+        ;;
+      esac
     else
       cat ${FILENAME} | xclip -selection clipboard
     fi
