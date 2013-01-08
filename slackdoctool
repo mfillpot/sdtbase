@@ -17,8 +17,6 @@ VERSION="0.0.1"
 #   13. Clean up the script
 #  
 
-#abc "$@" - passes all arguments to a function
-
 # Define the path to the repo directory
 TMP_DIR="/tmp"
 
@@ -66,8 +64,6 @@ SCSTXT=$(tput setaf 2)
 #BLINK=$(tput blink)
 #REVERSE=$(tput smso)
 #UNDERLINE=$(tput smul)
-
-#http://stackoverflow.com/questions/4332478/read-the-current-text-color-in-a-xterm/4332530#4332530
 
 BuildStructure() 
 {
@@ -168,14 +164,20 @@ FinishPull() {
   # Arg2 = Descriptive Name
   # Arg3 = Output File Name
 
-  wget ${1} --output-document=${3}
+  local URL=${1}
+  local DESCRIPT=${2}
+  local OUTFILE=${3}
+
+  local FAILTEXT="epub_LoadScript"
+
+  wget ${URL} --output-document=${OUTFILE}
 
   # Test for a valid pull and display associated message
-  if [ -n "$(cat ${3}|grep epub_LoadScript)" ]; then
-    rm ${3}
-    printf "\n${ERRTXT}%s${NRMTXT}\n" "${2} does not exist"
+  if [ -n "$(cat ${OUTFILE}|grep ${FEILTEXT})" ]; then
+    rm ${OUTFILE}
+    printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESCRIPT} does not exist"
   else
-    printf "\n${SCSTXT}%s${NRMTXT}\n" "${3} is ready to edit"
+    printf "\n${SCSTXT}%s${NRMTXT}\n" "${OUTFILE} is ready to edit"
   fi
 }
 
@@ -186,10 +188,13 @@ PullFromList() {
   # Arg1 = List File
   # Arg2 = Destination Dir
 
+  local LISTFILE=${1}
+  local DESTDIR=${2}
+
   while read PAG
   do
-    PullPage ${PAG} ${2}
-  done < ${1}
+    PullPage ${PAG} ${DESTDIR}
+  done < ${LISTFILE}
 }
 
 VimSyntax() {
@@ -231,6 +236,7 @@ PullTemplates() {
 }
 
 SetTemps() {
+  # Sets an array with the contents of the template index 
   if [ ! -f ${TEMP_FILE} ]; then
     RefreshTemplates
   else
@@ -265,6 +271,7 @@ AvailableTemplates() {
 }
 
 CreateNew() {
+  # Copies a template into a new filename and sets it for editing
 
   BuildStructure
 
@@ -300,41 +307,48 @@ CreateNew() {
 
 CopyToClipboard()
 {
-  if [ -f ${1} ]
+  # Copies a file to the clipboard for pasteing online
+  #
+  # Arg1 = File Name
+  # Arg2 = 1 to turn confirmations ON, else confirmations OFF
+
+  local FILENAME=${1}
+  local CONFS=${2}
+
+  if [ -f ${FILENAME} ]
   then
-    if [ "${2}" = "1" ]
+    if [ "${CONFS}" = "1" ]
     then
       ls /var/log/packages | grep "\<xclip\>" > /dev/null
       # if xclip is installed on the system, 
       # copy the contents of the file to clipboard
       if [ $? -eq 0 ]; then
-        read -p "Would you like the contents of ${1} to be copied to the clipboard [y/N]? " yn
+        read -p "Would you like the contents of ${FILENAME} to be copied to the clipboard [y/N]? " yn
         case ${yn} in
         [Yy*]* )
-          cat ${1} | xclip -selection clipboard
+          cat ${FILENAME} | xclip -selection clipboard
           printf "\n${SCSTXT}%s${NRMTXT}\n" \
-            "The contents of ${1} has been copied to clipboard."
+            "The contents of ${FILENAME} has been copied to clipboard."
           return 1
           ;;
         esac
       else
         printf "\n${ERRTXT}%s${NRMTXT}\n" \
-          "xclip is not installed, the contens will need to be manually copied$."
+          "xclip is not installed, the contents will need to be manually copied$."
         return 1
       fi
     else
-      cat ${1} | xclip -selection clipboard
+      cat ${FILENAME} | xclip -selection clipboard
     fi
   else
     printf "\n${ERRTXT}%s${NRMTXT}\n" \
-      "The File ${1} does not exist, terminating action."
+      "The File ${FILENAME} does not exist, terminating action."
     exit 1
   fi
 }
 
 CheckUpdate() {
-# Halting process until a clean download location can be found
-#  github encodes extra data when pulling text files
+# Checks githhub for a new version of the file and downloads it
 
   NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
   printf "\n${BLDTXT}%s${NRMTXT}\n" \
@@ -369,6 +383,7 @@ CheckUpdate() {
 DisplayHelp() {
 # Displays the help text
 
+  # Definte the basic formatting for each level of the output
   local L1="\n${BLDTXT}%s${NRMTXT} %s\n"
   local L2="  ${BLDTXT}%s${NRMTXT} %s\n"
   local L3="    ${BLDTXT}%s${NRMTXT} %s\n"
