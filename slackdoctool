@@ -12,11 +12,12 @@ VERSION="0.0.1"
 
 
 #------ TODO List -------
-#		1. See if the script is causing terminal wrapping issues from font colors and fix them
-#		12. Add a page to the wiki with vim optimizations and refer to them in the script
-#		13. Clean up the script
+#   1. See if the script is causing terminal wrapping issues from font colors and fix them
+#   12. Add a page to the wiki with vim optimizations and refer to them in the script
+#   13. Clean up the script
 #  
 
+#abc "$@" - passes all arguments to a function
 
 # Define the path to the repo directory
 TMP_DIR="/tmp"
@@ -42,462 +43,543 @@ TEMP_URL="${SD_URL}/wiki:user:mfillpot:template_list"
 TEMP_FILE="${SD_DIR}/templates.txt"
 
 # Set Output font colors
-BLDTXT='\e[1m%s'
-NRMTXT='\e[0m%s'
-REDTXT='\e[1;31m'
+#BLDTXT='\e[1m%s'
+BLDTXT=$(tput bold)
+#NRMTXT='\e[0m%s'
+NRMTXT=$(tput sgr0)
+#ERRTXT='\e[1;31m'
+ERRTXT=$(tput setaf 1)
+SCSTXT=$(tput setaf 2)
+
+#BLACK=$(tput setaf 0)
+#RED=$(tput setaf 1)
+#GREEN=$(tput setaf 2)
+#YELLOW=$(tput setaf 3)
+#LIME_YELLOW=$(tput setaf 190)
+#POWDER_BLUE=$(tput setaf 153)
+#BLUE=$(tput setaf 4)
+#MAGENTA=$(tput setaf 5)
+#CYAN=$(tput setaf 6)
+#WHITE=$(tput setaf 7)
+#BRIGHT=$(tput bold)
+#NORMAL=$(tput sgr0)
+#BLINK=$(tput blink)
+#REVERSE=$(tput smso)
+#UNDERLINE=$(tput smul)
+
+#http://stackoverflow.com/questions/4332478/read-the-current-text-color-in-a-xterm/4332530#4332530
 
 BuildStructure() 
 {
-	# Accepts no arguments, builds directory structure
+  # Accepts no arguments, builds directory structure
 
-	if [ ! -d ${TEMPLATE_DIR} ]; then
-		printf "${REDTXT}The user directory at ${SD_DIR} does not exist${NRMTXT}\n"
-		read -p "Would you like to create it? (Y/N) :" yn
-		case ${yn} in
-		[Yy*]* )
-			mkdir -v ${SD_DIR}
-			if [ ! -d ${TEMPLATE_DIR} ]; then
-				mkdir -v ${TEMPLATE_DIR}
-			fi
-			;;
-		* )
-			printf "${REDTXT}Cannot resume without directory in place, Terminating.${NRMTXT}\n"
-			exit 1
-			;;
-		esac
-	fi
+  if [ ! -d ${TEMPLATE_DIR} ]; then
+    printf "\n${ERRTXT}%s${NRMTXT}\n" "The user directory at ${SD_DIR} does not exist"
+    read -p "Would you like to create it? (Y/N) :" yn
+    case ${yn} in
+    [Yy*]* )
+      mkdir -v ${SD_DIR}
+      if [ ! -d ${TEMPLATE_DIR} ]; then
+        mkdir -v ${TEMPLATE_DIR}
+      fi
+      ;;
+    * )
+      printf "\n${ERRTXT}%s${NRMTXT}\n" "Cannot resume without directory in place, Terminating."
+      exit 1
+      ;;
+    esac
+  fi
 }
 
 IsOnline() {
-	# Checks if the computer and/or github is online
-	ping -c 2 www.github.com > /dev/null
-	if [ $? -ne 0 ]; then
-		return 1
-	else
-		return 0
-	fi
+  # Checks if the computer and/or github is online
+  ping -c 2 www.github.com > /dev/null
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
 }
 
 PullPage() {
-	# Pulls the single page from $1 into the location at $2
+  # Pulls the single page from $1 into the location at $2
 
-	local EXTRACTLINE="?do=export_raw"
+  local EXTRACTLINE="?do=export_raw"
 
-	# Page holds the name of the requested page
-	local PAGE=${1}
+  # Page holds the name of the requested page
+  local PAGE=${1}
 
-	# If destination does not include ending slask add it
-	if [[ ${2} == *"/" ]]; then
-		local DESTDIR="${2}"
-	else
-		local DESTDIR="${2}/"
-	fi
+  # If destination does not include ending slask add it
+  if [[ ${2} == *"/" ]]; then
+    local DESTDIR="${2}"
+  else
+    local DESTDIR="${2}/"
+  fi
 
-	if [ ! -d ${DESTDIR} ]; then
-		printf "${REDTXT}The ${DESTDIR} directory does not exist, terminating action${NRMTXT}\n"
-		exit 1
-	fi
+  if [ ! -d ${DESTDIR} ]; then
+    printf "\n${ERRTXT}%s${NRMTXT}\n" "The ${DESTDIR} directory does not exist, terminating action"
+    exit 1
+  fi
 
-	# if requested page includs base url remove it so output page can be 
-	#  determined
-	if [[ "${PAGE}" == *"${SD_URL}"* ]]; then
-		local PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
-	fi
+  # if requested page includs base url remove it so output page can be 
+  #  determined
+  if [[ "${PAGE}" == *"${SD_URL}"* ]]; then
+    local PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
+  fi
 
-	# Set output file name
-	if [ "${2}" = "${TEMPLATE_DIR}" ]; then
-		local OF="$(echo "${PAGE}"|sed 's/:/-/g'|sed 's/templates-//g').${EXTENSION}"
-	else
-		local OF="$(echo "${PAGE}"|sed 's/:/-/g').${EXTENSION}"
-	fi
+  # Set output file name
+  if [ "${2}" = "${TEMPLATE_DIR}" ]; then
+    local OF="$(echo "${PAGE}"|sed 's/:/-/g'|sed 's/templates-//g').${EXTENSION}"
+  else
+    local OF="$(echo "${PAGE}"|sed 's/:/-/g').${EXTENSION}"
+  fi
 
   # If output file exists remove it
-	if [ -e ${DESTDIR}${OF} ]; then
-		rm ${DESTDIR}${OF}
-	fi
+  if [ -e ${DESTDIR}${OF} ]; then
+    rm ${DESTDIR}${OF}
+  fi
 
-	# Append the base url to the page address
-	local PAGE=${SD_URL}/${PAGE}
+  # Append the base url to the page address
+  local PAGE=${SD_URL}/${PAGE}
 
-	if [ -e ${DESTDIR}${OF} ]; then
-		printf "${REDTXT}${DESTDIR}${OF} exists${NRMTXT}\n"
-		read -p "Would you like to overwrite it? " yn
-		case ${yn} in
-		[Yy]* )
+  if [ -e ${DESTDIR}${OF} ]; then
+    printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESTDIR}${OF} exists"
+    read -p "Would you like to overwrite it? " yn
+    case ${yn} in
+    [Yy]* )
 
-			rm ${DESTDIR}${OF}
+      rm ${DESTDIR}${OF}
 
-			FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
-			;;
-		* )
-			printf ""
-			;;
-		esac
-	else
-		FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
-	fi
+      FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
+      ;;
+    * )
+      printf ""
+      ;;
+    esac
+  else
+    FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
+  fi
 }
 
 FinishPull() {
-	# retrieve the page
-	#
-	# Arg1 = URL
-	# Arg2 = Descriptive Name
-	# Arg3 = Output File Name
+  # retrieve the page
+  #
+  # Arg1 = URL
+  # Arg2 = Descriptive Name
+  # Arg3 = Output File Name
 
-	wget ${1} --output-document=${3}
+  wget ${1} --output-document=${3}
 
-	# Test for a valid pull and display associated message
-	if [ -n "$(cat ${3}|grep epub_LoadScript)" ]; then
-		rm ${3}
-		printf "${REDTXT} ${2} does not exist${NRMTXT}\n"
-	else
-		printf "${BLDTXT} ${3} is ready to edit${NRMTXT}\n"
-	fi
+  # Test for a valid pull and display associated message
+  if [ -n "$(cat ${3}|grep epub_LoadScript)" ]; then
+    rm ${3}
+    printf "\n${ERRTXT}%s${NRMTXT}\n" "${2} does not exist"
+  else
+    printf "\n${BLDTXT}%s${NRMTXT}\n" "${3} is ready to edit"
+  fi
 }
 
 PullFromList() {
-	# This function is intended to allow a user to specificy a text file
-	#  list of pages to retreive and pull them into the desired directory
-	#
-	# Arg1 = List File
-	# Arg2 = Destination Dir
+  # This function is intended to allow a user to specificy a text file
+  #  list of pages to retreive and pull them into the desired directory
+  #
+  # Arg1 = List File
+  # Arg2 = Destination Dir
 
-	while read PAG
-	do
-		PullPage ${PAG} ${2}
-	done < ${1}
+  while read PAG
+  do
+    PullPage ${PAG} ${2}
+  done < ${1}
 }
 
 VimSyntax() {
-	# Update/ Appends the necessary directive to the users .vimrc
-	#  file to set syntax highlighting for slackdocs
+  # Update/ Appends the necessary directive to the users .vimrc
+  #  file to set syntax highlighting for slackdocs
 
-	local VIMRC="${HOME}/.vimrc"
+  local VIMRC="${HOME}/.vimrc"
 
-	wget ${SYNTAX_URL}/${SYNF_VIM} --output-document=${SD_DIR}/.${SYNF_VIM}
+  wget ${SYNTAX_URL}/${SYNF_VIM} --output-document=${SD_DIR}/.${SYNF_VIM}
 
-	# removes existing slackdoc syntax template lines if they exist
-	sed -i /${FILETYPE}/d ${VIMRC}
+  # removes existing slackdoc syntax template lines if they exist
+  sed -i /${FILETYPE}/d ${VIMRC}
 
-	# Write the new lines to the vimrc file
-	echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
-	echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
-	echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
+  # Write the new lines to the vimrc file
+  echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
+  echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
+  echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
 
-	printf "\n${BLDTXT}The script has added the following lines to your vimrc file${NRMTXT}\n\n"
-	cat ${VIMRC} | grep ${FILETYPE}
-	printf "\n"
+  printf "\n${BLDTXT}%s${NRMTXT}\n\n" "The script has added the following lines to your vimrc file"
+  cat ${VIMRC} | grep ${FILETYPE}
+  printf "\n"
 }
 
 # CLEAN TO HERE
 PullTemplates() {
 # Pulls the listed template files into the templates directory
 
-	if [ ! -d ${TEMPLATE_DIR} ]; then
-		mkdir ${TEMPLATE_DIR}
-	fi
-	
-	SetTemps
+  if [ ! -d ${TEMPLATE_DIR} ]; then
+    mkdir ${TEMPLATE_DIR}
+  fi
+  
+  SetTemps
 
-	for TEMPLATE in "${TEMPS[@]}"
-	do
-		PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
-	done
-	printf "${BLDTXT} All templates have been successfully retreived.${NRMTXT}\n"
+  for TEMPLATE in "${TEMPS[@]}"
+  do
+    PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
+  done
+  printf "\n${BLDTXT}%s${NRMTXT}\n" "All templates have been successfully retreived."
 }
 
 SetTemps() {
-	if [ ! -f ${TEMP_FILE} ]; then
-		RefreshTemplates
-	else
-		TEMPS=( $(cat ${TEMP_FILE}) )
-	fi
+  if [ ! -f ${TEMP_FILE} ]; then
+    RefreshTemplates
+  else
+    TEMPS=( $(cat ${TEMP_FILE}) )
+  fi
 }
 RefreshTemplates() {
-	# Refresh the list of available templates
-	if [ ! -f ${TEMP_FILE} ]; then
-		BuildStructure
-	fi
-	echo "Refreshing the list of available templates..."
-	lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
-	TEMPS=( $(cat $TEMP_FILE) )
+  # Refresh the list of available templates
+  if [ ! -f ${TEMP_FILE} ]; then
+    BuildStructure
+  fi
+  printf "\n%s\n" "Refreshing the list of available templates..."
+  lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
+  TEMPS=( $(cat $TEMP_FILE) )
 }
 
 AvailableTemplates() {
-	# Displays a list of available templates and usage
-	
-	SetTemps
+  # Displays a list of available templates and usage
+  
+  SetTemps
 
-	printf "\nTo create a new document using a template type:\n"
-	printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
-	printf "\nThe following templates are available:\n\n"
-		
-	for i in ${!TEMPS[*]}
-	do
-		printf "%4d: %s\n" $i ${TEMPS[$i]}
-	done
-	printf "\n"
-	
+  printf "\n%s\n" "To create a new document using a template type:"
+  printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
+  printf "\n%s\n\n" "The following templates are available:"
+    
+  for i in ${!TEMPS[*]}
+  do
+    printf "%4d: %s\n" $i ${TEMPS[$i]}
+  done
+  printf "\n"
 }
 
 CreateNew() {
 
-	BuildStructure
+  BuildStructure
 
-	# Pull the templates if they are not present
-	if [ ! -d ${TEMPLATE_DIR} ]; then
-		PullTemplates
-	fi
-	
-	TEMPLATE_FILE=${TEMPLATE_DIR}/${TEMPS[${TEMPLATE_IND}]}.${EXTENSION}
-	OUTPUT_FILE=${SD_DIR}/${DOC_TITLE}.${EXTENSION}
+  # Pull the templates if they are not present
+  if [ ! -d ${TEMPLATE_DIR} ]; then
+    PullTemplates
+  fi
+  
+  TEMPLATE_FILE=${TEMPLATE_DIR}/${TEMPS[${TEMPLATE_IND}]}.${EXTENSION}
+  OUTPUT_FILE=${SD_DIR}/${DOC_TITLE}.${EXTENSION}
 
-	if [ -f ${TEMPLATE_FILE} ]; then
+  if [ -f ${TEMPLATE_FILE} ]; then
 
-		# Check if the output file already exists. If so, edit it.
-		if [ -f ${OUTPUT_FILE} ]; then
-			vim ${OUTPUT_FILE}
-			CopyToClipboard ${OUTPUT_FILE} "1"
+    # Check if the output file already exists. If so, edit it.
+    if [ -f ${OUTPUT_FILE} ]; then
+      vim ${OUTPUT_FILE}
+      CopyToClipboard ${OUTPUT_FILE} "1"
 
-			# If the output file does not exist, copy the template, rename and
-			# edit it.
-		else
-			cp ${TEMPLATE_FILE} ${OUTPUT_FILE} && vim ${OUTPUT_FILE}
-			CopyToClipboard ${OUTPUT_FILE} "1"
-		fi
-	else
-		printf "There have been problems accessing ${TEMPLATE_FILE}\n"
-		printf "\nPlease download template files first by running:\n"
-		printf "\n${BLDTXT}slackdoctool fetch templates${NRMTXT}\n\n"
-	fi
+      # If the output file does not exist, copy the template, rename and
+      # edit it.
+    else
+      cp ${TEMPLATE_FILE} ${OUTPUT_FILE} && vim ${OUTPUT_FILE}
+      CopyToClipboard ${OUTPUT_FILE} "1"
+    fi
+  else
+    printf "\n${ERRTXT}%s${NRMTXT}\n" \
+      "There have been problems accessing ${TEMPLATE_FILE}"
+    printf "${NRMTXT}%s${BLDTXT} %s${NRMTXT}\n" \
+      "Please download template files first by running:" \
+        "slackdoctool fetch templates"
+  fi
 }
 
 CopyToClipboard()
 {
-	if [ -f ${1} ]
-	then
-		if [ "${2}" = "1" ]
-		then
-			ls /var/log/packages | grep "\<xclip\>" > /dev/null
-			# if xclip is installed on the system, 
-			# copy the contents of the file to clipboard
-			if [ $? -eq 0 ]; then
-				read -p "Would you like the contents of ${1} to be copied to the clipboard [y/N]? " yn
-				case ${yn} in
-				[Yy*]* )
-					cat ${1} | xclip -selection clipboard
-					echo "The contents of ${1} has been copied to clipboard."
-					return 1
-					;;
-				esac
-			else
-				printf "${REDTXT}xclip is not installed, the contens will need to be manually copied$.${NRMTXT}"
-				return 1
-			fi
-		else
-			cat ${1} | xclip -selection clipboard
-		fi
-	else
-		printf "${REDTXT}The File ${1} does not exist, terminating action.${NRMTXT}"
-		exit 1
-	fi
+  if [ -f ${1} ]
+  then
+    if [ "${2}" = "1" ]
+    then
+      ls /var/log/packages | grep "\<xclip\>" > /dev/null
+      # if xclip is installed on the system, 
+      # copy the contents of the file to clipboard
+      if [ $? -eq 0 ]; then
+        read -p "Would you like the contents of ${1} to be copied to the clipboard [y/N]? " yn
+        case ${yn} in
+        [Yy*]* )
+          cat ${1} | xclip -selection clipboard
+          printf "\n${SCSTXT}%s${NRMTXT}\n" \
+            "The contents of ${1} has been copied to clipboard."
+          return 1
+          ;;
+        esac
+      else
+        printf "\n${ERRTXT}%s${NRMTXT}\n" \
+          "xclip is not installed, the contens will need to be manually copied$."
+        return 1
+      fi
+    else
+      cat ${1} | xclip -selection clipboard
+    fi
+  else
+    printf "\n${ERRTXT}%s${NRMTXT}\n" \
+      "The File ${1} does not exist, terminating action."
+    exit 1
+  fi
 }
 
 CheckUpdate() {
 # Halting process until a clean download location can be found
 #  github encodes extra data when pulling text files
 
-	NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
-	printf "\n${BLDTXT}Checking for an updated script.${NRMTXT}\n\n"
-	if [ "${NEW_VERSION}" = "${VERSION}" ]; then
-		printf "Your copy is up to date\n\n"
-	else 
-		printf "${BLDTXT}A new version is available.${NRMTXT}\n"
-		read -p "Would you like to fetch version ${NEW_VERSION}? " yn 
-		case ${yn} in
-		[Yy*]* )
-			wget ${SCRIPT_URL} --output-document=${TMP_DIR}/slackdoctool
-			if [ "$?" = "0" ]; then
-				printf "Version ${VERSION} has been saved to${TMP_DIR}/slackdoctool.\n"
-			else
-				printf "${REDTXT}The update failed, try again later.${NRMTXT}\n"
-			fi
-			;;
-		* )
-			printf "${REDTXT}Download Decline, terminating action.${NRMTXT}\n"
-			;;
-		esac
-	fi
+  NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
+  printf "\n${BLDTXT}%s${NRMTXT}\n" \
+    "Checking for an updated script."
+  if [ "${NEW_VERSION}" = "${VERSION}" ]; then
+    printf "\n${SCSTXT}%s${NRMTXT}\n" \
+      "Your copy is up to date"
+  else 
+    printf "\n${BLDTXT}%s${NRMTXT}\n" \
+      "A new version is available."
+    read -p "Would you like to fetch version ${NEW_VERSION} [y/N]? " yn
+    case ${yn} in
+    [Yy*]* )
+      wget ${SCRIPT_URL} --output-document=${TMP_DIR}/slackdoctool
+      if [ "$?" = "0" ]; then
+#SCSTXT=$(tput setaf 153)
+        printf "\n${SCSTXT}%s${NRMTXT}\n" \
+          "Version ${VERSION} has been saved to ${TMP_DIR}/slackdoctool."
+      else
+        printf "\n${ERRTXT}%s${NRMTXT}\n" \
+          "The update failed, try again later."
+      fi
+      ;;
+    * )
+      printf "\n${ERRTXT}%s${NRMTXT}\n" \
+        "Download Declined, terminating action."
+      ;;
+    esac
+  fi
 }
 
 DisplayHelp() {
 # Displays the help text
 
-	printf "\n${BLDTXT}Slackware Documentation Project Off-line Tools${NRMTXT}\n"
-	printf "\n"
-	printf "${BLDTXT}Slackdocs Website:${NRMTXT} http://docs.slackware.com\n"
-	printf "${BLDTXT}Project URL:${NRMTXT} https://github.com/mfillpot/slackdoc_templates\n"
-	printf "\n"
-	printf "${BLDTXT}Version: ${NRMTXT}${VERSION}\n"
-	printf "\n"
-	printf "${BLDTXT}Options:${NRMTXT}\n"
-	printf '%s\n' --------------------
-	printf "${BLDTXT}help${NRMTXT} - Displays this dialog\n"
-	printf "\n"
-	printf "${BLDTXT}fetch${NRMTXT} - fetches a wiki formatted page from docs.slackware.com.\n"
-	printf "  ${BLDTXT}{URL}${NRMTXT} - can be from the site root or the whole address.\n"
-	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will
-	\ be in the default slackdoc directory.\n"
-	printf "  ${BLDTXT}{FILE}${NRMTXT} - A file that contains a list of pages to fetch.\n"
-	printf "    ${BLDTXT}{Destination Directory}${NRMTXT} - if ommited it will
-	\ be in the default slackdoc directory.\n"
-	printf "\n"
-	printf "  ${BLDTXT}templates${NRMTXT} - can be from the site root or the whole address.\n"
-	printf "  ${BLDTXT}syntax${NRMTXT} - fetch the example syntax file from slackdocs wiki.\n"
-	printf "\n"
-	printf "${BLDTXT}templates${NRMTXT} - Displays a list of templates that are available.\n"
-	printf "  ${BLDTXT}[refresh]${NRMTXT} - Optional: Refreshes a list of available templates.\n"
-	printf "\n"
-	printf "${BLDTXT}new${NRMTXT} - creates a new document based on a template.\n"
-	printf "  ${BLDTXT}index_number${NRMTXT} - template index number.\n"
-	printf "    ${BLDTXT}title${NRMTXT} - document title.\n"
-	printf "\n"
-	printf "${BLDTXT}syntax${NRMTXT} - Applies the associated syntax file for use.\n"
-	printf "  ${BLDTXT}vim${NRMTXT} - Applies the changes to .vimrc to enable slackdoc syntax highlighting.\n"
-	printf "  ${BLDTXT}kate${NRMTXT} - Display instruction for enabling syntax highlighting in kate.\n"
-	printf "\n"
-	printf "${BLDTXT}copy${NRMTXT} - Copies the contents of a file to the clipboard.\n"
-	printf "  ${BLDTXT}{FileName}${NRMTXT} - The file to copy.\n"
-	printf "\n"
-	printf "${BLDTXT}update${NRMTXT} - Check for and download this scripts update\n"
-	printf "\n"
+  local L1="\n${BLDTXT}%s${NRMTXT} %s\n"
+  local L2="  ${BLDTXT}%s${NRMTXT} %s\n"
+  local L3="    ${BLDTXT}%s${NRMTXT} %s\n"
+
+  printf "\n${BLDTXT}%s${NRMTXT}\n" "Slackware Documentation Project - Off-line Tools"
+
+  printf "\n${BLDTXT}%s${NRMTXT} %s\n" "Slackdocs Website:" "http://docs.slackware.com"
+  printf "${BLDTXT}%s${NRMTXT} %s\n" "Project URL:" "https://github.com/mfillpot/slackdoc_templates"
+  printf "${BLDTXT}%s${NRMTXT} %s\n" "Version:" "${VERSION}"
+
+  printf "\n${BLDTXT}%s${NRMTXT}\n" "Options:"
+  printf '%s\n' --------------------
+  printf "${L1}" \
+    "help" \
+      "- Displays this dialog"
+
+  printf "${L1}" \
+    "fetch" \
+      "- Fetches a wiki formatted page from docs.slackware.com."
+  printf "${L2}" \
+    "{URL}" \
+      "- Can be from the site root or the whole address."
+  printf "${L3}" \
+    "{Destination Directory}" \
+      "- if ommited it will be in the default slackdoc directory."
+  printf "${L2}" \
+    "{FILE}" \
+      "- A file that contains a list of pages to fetch."
+  printf "${L3}" \
+    "{Destination Directory}" \
+      "- Optional: if ommited it will be in the default slackdoc directory."
+
+  printf "${L2}" \
+    "templates" \
+      "- Can be from the site root or the whole address."
+  printf "${L2}" \
+    "syntax" \
+      "- Fetch the example syntax file from slackdocs wiki."
+
+  printf "${L1}" \
+    "templates" \
+      "- Displays a list of templates that are available."
+  printf "${L2}" \
+    "[refresh]" \
+      "- Optional: Refreshes a list of available templates."
+
+  printf "${L1}" \
+    "new" \
+      "- Creates a new document based on a template."
+  printf "${L2}" \
+    "index_number" \
+      "- Template index number."
+  printf "${L3}" \
+    "title" \
+      "- Document title."
+
+  printf "${L1}" \
+    "syntax" \
+      "- Applies the associated syntax file for use."
+  printf "${L2}" \
+    "vim" \
+      "- Applies the changes to .vimrc to enable slackdoc syntax highlighting."
+  printf "${L2}" \
+    "kate" \
+      "- Display instruction for enabling syntax highlighting in kate."
+
+  printf "${L1}" \
+    "copy" \
+      "- Copies the contents of a file to the clipboard."
+  printf "${L2}" \
+    "{FileName}" \
+      "- The file to copy."
+
+  printf "${L1}" \
+    "update" \
+      "- Check for and download this scripts update"
+  printf "\n"
 }
 
 # Check if the script is run as root
 if [ "$(id -u)" = "0" ]; then
-   echo "Do not run the script as root." 1>&2
+   printf "${ERRTXT}%s${NRMTXT}" \
+    "Do not run the script as root."
    exit 1
 fi
 
 case "${1}" in
-	fetch)
-		if [ "${2}" = "templates" ]; then
-			# If too many args then display help
-			if test $# -le 2
-			then
-				BuildStructure
-				PullTemplates
-				AvailableTemplates
-			else
-				printf "${REDTXT}Too Many Arguments${NRMTXT}\n"
-				DisplayHelp
-				exit 1
-			fi
-		elif [ "${2}" = "syntax" ]; then
-			PullPage "wiki:syntax" ${SD_DIR}
-			printf "\nThe example syntax file is now located at ${SD_DIR}/wiki-syntax.slackdoc\n\n"
-		else
-			# If too many args then display help
-			if [[ $# -le 3 ]]; then
-				# If no 3rd arg then download to pwd
-				if [ -z "${3}" ]; then
-					BuildStructure
-					DEST_DIR=${SD_DIR}
-				else
-					if [ -d ${3} ]; then
-						DEST_DIR=${3}
-					else
-						printf "${REDTXT}The selected directory does not exist.${NRMTXT}\n"
-						exit 1
-					fi
-				fi
-				if [ -f ${2} ]; then
-					PullFromList ${2} ${DEST_DIR}
-				else
-					PullPage ${2} ${DEST_DIR}
-				fi
-			else
-				DisplayHelp
-				exit 1
-			fi
-		fi
-		;;
-	syntax)
-		# If too many args then display help
-		if [[ $# -le 2 ]]; then
-			case "${2}" in
-			vim)
-				BuildStructure
-				VimSyntax
-				;;
-			kate)
-				printf "\nTo implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to ${BLDTXT}Tools -> Highlighting -> Markup -> Mediawiki${NRMTXT}.\n\n"
-				;;
-			*)
-				DisplayHelp
-				exit 1
-				;;
-			esac 
-		else
-			DisplayHelp
-			exit 1
-		fi
-		;;
-	templates)
-		if [[ $# -eq 1 ]]; then
-			AvailableTemplates
-		elif [[ $# -eq 2 && ${2} == "refresh" ]]; then
-			RefreshTemplates
-			AvailableTemplates
-		else
-			DisplayHelp
-			exit 1
-		fi
-		;;
-	new)
-		# Check the number of arguments
-		if [[ $# != 3 ]]; then
-				AvailableTemplates
-			exit 1
-		# Check if $2 is a digit
-		elif [[ "$2" = *[[:digit:]]* ]]; then
-			SetTemps			
-			# Check if $2 is within the template index range
-			if [[ "$2" -gt ${#TEMPS[*]} ]]; then
-				AvailableTemplates
-				printf "${REDTXT}Template index out of range!${NRMTXT}\n\n"
-				exit 1
-			else
-					# Create a new document based on a template
-				TEMPLATE_IND=$2
-				DOC_TITLE=$3
-				CreateNew
-			fi
-		else
-			AvailableTemplates
-			exit 1
-		fi
-		;;
-	copy)
-		if [[ $# != 2 ]]; then
-			CopyToClipboard $2 "0"
-		else
-			printf "${REDTXT}Invalid numer of arugments!${NRMTXT}\n\n"
-			DisplayHelp
-			exit 1
-		fi
-		;;
-	update)
-		CheckUpdate	
-		;;
-	help)
-		DisplayHelp
-		;;
-	*)
-		DisplayHelp
-		exit 1
-	;;
+  fetch)
+    if [ "${2}" = "templates" ]; then
+      # If too many args then display help
+      if test $# -le 2
+      then
+        BuildStructure
+        PullTemplates
+        AvailableTemplates
+      else
+        printf "${ERRTXT}%s${NRMTXT}\n" \
+          "Too Many Arguments"
+        DisplayHelp
+        exit 1
+      fi
+    elif [ "${2}" = "syntax" ]; then
+      PullPage "wiki:syntax" ${SD_DIR}
+      printf "\n${ERRTXT}%s${NRMTXT}\n" \
+        "The example syntax file is now located at ${SD_DIR}/wiki-syntax.slackdoc"
+    else
+      # If too many args then display help
+      if [[ $# -le 3 ]]; then
+        # If no 3rd arg then download to pwd
+        if [ -z "${3}" ]; then
+          BuildStructure
+          DEST_DIR=${SD_DIR}
+        else
+          if [ -d ${3} ]; then
+            DEST_DIR=${3}
+          else
+            printf "\n${ERRTXT}%s${NRMTXT}\n" \
+              "The selected directory does not exist."
+            exit 1
+          fi
+        fi
+        if [ -f ${2} ]; then
+          PullFromList ${2} ${DEST_DIR}
+        else
+          PullPage ${2} ${DEST_DIR}
+        fi
+      else
+        DisplayHelp
+        exit 1
+      fi
+    fi
+    ;;
+  syntax)
+    # If too many args then display help
+    if [[ $# -le 2 ]]; then
+      case "${2}" in
+      vim)
+        BuildStructure
+        VimSyntax
+        ;;
+      kate)
+        printf "\n${NTMTXT}%s${BLDTXT}%s${NRMTXT}%s\n" \
+          "To implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to " \
+          "Tools -> Highlighting -> Markup -> Mediawiki" \
+          "."
+        ;;
+      *)
+        DisplayHelp
+        exit 1
+        ;;
+      esac 
+    else
+      DisplayHelp
+      exit 1
+    fi
+    ;;
+  templates)
+    if [[ $# -eq 1 ]]; then
+      AvailableTemplates
+    elif [[ $# -eq 2 && ${2} == "refresh" ]]; then
+      RefreshTemplates
+      AvailableTemplates
+    else
+      DisplayHelp
+      exit 1
+    fi
+    ;;
+  new)
+    # Check the number of arguments
+    if [[ $# != 3 ]]; then
+        AvailableTemplates
+      exit 1
+    # Check if $2 is a digit
+    elif [[ "$2" = *[[:digit:]]* ]]; then
+      SetTemps      
+      # Check if $2 is within the template index range
+      if [[ "$2" -gt ${#TEMPS[*]} ]]; then
+        AvailableTemplates
+        printf "\n${ERRTXT}%s${NRMTXT}\n" \
+          "Template index out of range!"
+        exit 1
+      else
+          # Create a new document based on a template
+        TEMPLATE_IND=$2
+        DOC_TITLE=$3
+        CreateNew
+      fi
+    else
+      AvailableTemplates
+      exit 1
+    fi
+    ;;
+  copy)
+    if [[ $# != 2 ]]; then
+      CopyToClipboard $2 "0"
+    else
+      printf "${ERRTXT}%s${NRMTXT}\n" \
+        "Invalid numer of arugments!"
+      DisplayHelp
+      exit 1
+    fi
+    ;;
+  update)
+    CheckUpdate 
+    ;;
+  help)
+    DisplayHelp
+    ;;
+  *)
+    DisplayHelp
+    exit 1
+  ;;
 esac
 
 exit 0
