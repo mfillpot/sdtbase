@@ -244,6 +244,7 @@ RefreshTemplates() {
   fi
   printf "\n%s\n" "Refreshing the list of available templates..."
   lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
+  sort ${TEMP_FILE} -o ${TEMP_FILE}
   TEMPS=( $(cat $TEMP_FILE) )
 }
 
