@@ -175,7 +175,7 @@ FinishPull() {
     rm ${3}
     printf "\n${ERRTXT}%s${NRMTXT}\n" "${2} does not exist"
   else
-    printf "\n${BLDTXT}%s${NRMTXT}\n" "${3} is ready to edit"
+    printf "\n${SCSTXT}%s${NRMTXT}\n" "${3} is ready to edit"
   fi
 }
 
@@ -208,7 +208,7 @@ VimSyntax() {
   echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
   echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
 
-  printf "\n${BLDTXT}%s${NRMTXT}\n\n" "The script has added the following lines to your vimrc file"
+  printf "\n${SCSTXT}%s${NRMTXT}\n\n" "The script has added the following lines to your vimrc file"
   cat ${VIMRC} | grep ${FILETYPE}
   printf "\n"
 }
@@ -227,7 +227,7 @@ PullTemplates() {
   do
     PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
   done
-  printf "\n${BLDTXT}%s${NRMTXT}\n" "All templates have been successfully retreived."
+  printf "\n${SCSTXT}%s${NRMTXT}\n" "All templates have been successfully retreived."
 }
 
 SetTemps() {
