@@ -163,21 +163,24 @@ FinishPull() {
   # Arg1 = URL
   # Arg2 = Descriptive Name
   # Arg3 = Output File Name
-
+  
+  F_STATUS=""
   local URL=${1}
   local DESCRIPT=${2}
   local OUTFILE=${3}
-
+  
   local FAILTEXT="epub_LoadScript"
 
   wget ${URL} --output-document=${OUTFILE}
 
   # Test for a valid pull and display associated message
-  if [ -n "$(cat ${OUTFILE}|grep ${FEILTEXT})" ]; then
+  if [ -n "$(cat ${OUTFILE}|grep ${FAILTEXT})" ]; then
     rm ${OUTFILE}
     printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESCRIPT} does not exist"
+	unset F_STATUS
   else
     printf "\n${SCSTXT}%s${NRMTXT}\n" "${OUTFILE} is ready to edit"
+	F_STATUS=0
   fi
 }
 
@@ -190,11 +193,18 @@ PullFromList() {
 
   local LISTFILE=${1}
   local DESTDIR=${2}
-
+  declare -a FETCHED=()
+  declare -a FAILED=()
+  
   while read PAG
   do
-    PullPage ${PAG} ${DESTDIR}
+	  PullPage ${PAG} ${DESTDIR} 
+	  [ -z "$F_STATUS" ] && FAILED+=("${PAG}") || FETCHED+=("${PAG}")
   done < ${LISTFILE}
+  echo 
+  echo "Fetched ${#FETCHED[@]} document(s): ${FETCHED[@]}"
+  echo "Failed to fetch ${#FAILED[@]} document(s): ${FAILED[@]}"
+  echo
 }
 
 VimSyntax() {
@@ -219,19 +229,22 @@ VimSyntax() {
 }
 
 PullTemplates() {
-# Pulls the listed template files into the templates directory
+	# Pulls the listed template files into the templates directory
 
-  if [ ! -d ${TEMPLATE_DIR} ]; then
+  # Checks if the templte directory exists
+	if [ ! -d ${TEMPLATE_DIR} ]; then
     mkdir ${TEMPLATE_DIR}
   fi
   
+  # Populates the TEMPS array
   SetTemps
 
-  for TEMPLATE in "${TEMPS[@]}"
+  # Pulls the templates listed in the TEMPS array.
+	for TEMPLATE in "${TEMPS[@]}"
   do
     PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
   done
-  printf "\n${SCSTXT}%s${NRMTXT}\n" "All templates have been successfully retreived."
+  printf "\n${SCSTXT}%s${NRMTXT}\n" "All templates have been successfully retrieved."
 }
 
 SetTemps() {
@@ -245,24 +258,33 @@ SetTemps() {
 
 RefreshTemplates() {
   # Refresh the list of available templates
+
+  # Check if the directory structure exists
   if [ ! -f ${TEMP_FILE} ]; then
     BuildStructure
   fi
+  
   printf "\n%s\n" "Refreshing the list of available templates..."
   lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
+  
+  # Make the order of the templates more structured
   sort ${TEMP_FILE} -o ${TEMP_FILE}
+
+  # Populates the TEMPS array with a list of available templates
   TEMPS=( $(cat $TEMP_FILE) )
 }
 
 AvailableTemplates() {
   # Displays a list of available templates and usage
   
+  # Make sure that the TEMPS array is set
   SetTemps
 
   printf "\n%s\n" "To create a new document using a template type:"
   printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
   printf "\n%s\n\n" "The following templates are available:"
-    
+  
+	# Loop over the TEMPS array to display available templates 
   for i in ${!TEMPS[*]}
   do
     printf "%4d: %s\n" $i ${TEMPS[$i]}
@@ -274,7 +296,8 @@ AvailableTemplates() {
 CreateNew() {
   # Copies a template into a new filename and sets it for editing
 
-  BuildStructure
+  
+	BuildStructure
 
   # Pull the templates if they are not present
   if [ ! -d ${TEMPLATE_DIR} ]; then
