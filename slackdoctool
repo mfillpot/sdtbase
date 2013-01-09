@@ -15,6 +15,7 @@ VERSION="0.0.4"
 #   1. See if the script is causing terminal wrapping issues from font colors and fix them
 #   12. Add a page to the wiki with vim optimizations and refer to them in the script
 #   13. Clean up the script
+#   14. Add hooks for IsOnline where appropriate
 #  
 
 # Define the path to the repo directory
