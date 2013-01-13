@@ -208,6 +208,27 @@ PullFromList() {
   echo
 }
 
+GetSyntaxExample () {
+      PullPage "wiki:syntax" ${SD_DIR}
+      printf "${SCSTXT}%s${NRMTXT}\n" \
+        "The example syntax file is now located at ${SD_DIR}/wiki-syntax.${EXTENSION}"
+}
+
+PrepSyntax() {
+  case "${SYNAPP}" in
+    vim)
+      VImSyntax
+      ;;
+    kate)
+      KateSyntax
+      ;;
+    *)
+      prinf "${ERRTXT}%s${NRMTXT}" "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
+      exit 1
+      ;;
+  esac
+}
+
 VimSyntax() {
   # Update/ Appends the necessary directive to the users .vimrc
   #  file to set syntax highlighting for slackdocs
@@ -227,6 +248,13 @@ VimSyntax() {
   printf "\n${SCSTXT}%s${NRMTXT}\n\n" "The script has added the following lines to your vimrc file"
   cat ${VIMRC} | grep ${FILETYPE}
   printf "\n"
+}
+
+KateSyntax() {
+        printf "\n${NTMTXT}%s${BLDTXT}%s${NRMTXT}%s\n" \
+          "To implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to " \
+          "Tools -> Highlighting -> Markup -> Mediawiki" \
+          "."
 }
 
 PullTemplates() {
@@ -293,7 +321,7 @@ AvailableTemplates() {
   printf "\n"
 }
 
-# CLEAN TO HERE
+  CLEAN=0
 CreateNew() {
   # Copies a template into a new filename and sets it for editing
 
@@ -410,13 +438,13 @@ CheckUpdate() {
   fi
 }
 
+  # The help dialog
 DisplayHelp() {
 # Displays the help text
 
   # Definte the basic formatting for each level of the output
-  local L1="\n${BLDTXT}%s${NRMTXT} %s\n"
-  local L2="  ${BLDTXT}%s${NRMTXT} %s\n"
-  local L3="    ${BLDTXT}%s${NRMTXT} %s\n"
+  local NOARG="$\n${BLDTXT}%s\t${NRMTXT}%s\n"
+  local WITHARG="$\n{BLDTXT}%s %s\n\t${NRMTXT}%s\n"
 
   printf "\n${BLDTXT}%s${NRMTXT}\n" "Slackware Documentation Project - Off-line Tools"
 
@@ -424,8 +452,7 @@ DisplayHelp() {
   printf "${BLDTXT}%s${NRMTXT} %s\n" "Project URL:" "https://github.com/mfillpot/slackdoc_templates"
   printf "${BLDTXT}%s${NRMTXT} %s\n" "Version:" "${VERSION}"
 
-  printf "\n${BLDTXT}%s${NRMTXT}\n" "Options:"
-  printf '%s\n' --------------------
+  printf "\n${BLDTXT}%s${NRMTXT}" "OPTIONS"
   printf "${L1}" \
     "help" \
       "- Displays this dialog"
@@ -493,12 +520,8 @@ DisplayHelp() {
   printf "\n"
 }
 
-# Check if the script is run as root
-if [ "$(id -u)" = "0" ]; then
-   printf "${ERRTXT}%s${NRMTXT}" \
-    "Do not run the script as root."
-   exit 1
-fi
+  # The old Argument checkin mechanism
+OldMenu() {
 
 case "${1}" in
   fetch)
@@ -515,10 +538,6 @@ case "${1}" in
         DisplayHelp
         exit 1
       fi
-    elif [ "${2}" = "syntax" ]; then
-      PullPage "wiki:syntax" ${SD_DIR}
-      printf "\n${ERRTXT}%s${NRMTXT}\n" \
-        "The example syntax file is now located at ${SD_DIR}/wiki-syntax.slackdoc"
     else
       # If too many args then display help
       if [[ $# -le 3 ]]; then
@@ -535,39 +554,10 @@ case "${1}" in
             exit 1
           fi
         fi
-        if [ -f ${2} ]; then
-          PullFromList ${2} ${DEST_DIR}
-        else
-          PullPage ${2} ${DEST_DIR}
-        fi
       else
         DisplayHelp
         exit 1
       fi
-    fi
-    ;;
-  syntax)
-    # If too many args then display help
-    if [[ $# -le 2 ]]; then
-      case "${2}" in
-      vim)
-        BuildStructure
-        VimSyntax
-        ;;
-      kate)
-        printf "\n${NTMTXT}%s${BLDTXT}%s${NRMTXT}%s\n" \
-          "To implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to " \
-          "Tools -> Highlighting -> Markup -> Mediawiki" \
-          "."
-        ;;
-      *)
-        DisplayHelp
-        exit 1
-        ;;
-      esac 
-    else
-      DisplayHelp
-      exit 1
     fi
     ;;
   templates)
@@ -616,16 +606,231 @@ case "${1}" in
       exit 1
     fi
     ;;
-  update)
-    CheckUpdate 
-    ;;
-  help)
+esac
+}
+
+  # Cycle through the args setting valiables
+CheckArgs () {
+while getopts ":ac:d:f:hln:o:rs:uw:ST" opt; do
+    case $opt in
+  h)
     DisplayHelp
+    exit 0
     ;;
-  *)
+
+
+  S)
+    echo "fetch syntax file" >&2
+    FETCHSYNTAX=1
+    ;;
+  s)
+    echo "apply syntax to APP $OPTARG" >&2
+    SYNAPP=${OPTARG}
+    ;;
+  T)
+    echo "fetch templates" >&2
+    FETCHTEMPLATES=1
+    ;;
+
+
+  w)
+    echo "Grab URL $OPTARG" >&2
+    GETURL=${OPTARG}
+    ;;
+  f)
+    echo "READ from file $OPTARG" >&2
+    GETFILE=${OPTARG}
+    ;;
+  d)
+    echo "Save to destination - $OPTARG" >&2
+    DESTDIR=${OPTARG}
+    ;;
+
+
+  c)
+    echo "copy $OPTARG to clipboard" >&2
+    COPYFILE=${OPTARG}
+    ;;
+
+
+  n)
+    echo "Create new article based upon $OPTARG" >&2
+    USETEMPLATE=${OPTARG}
+    ;;
+  o)
+    echo "New File will be named $OPTARG" >&2
+    NEWFILE=${OPTARG}
+    ;;
+
+
+  r)
+    echo "refresh templates" >&2
+    REFRESHTEMPLATES=1
+    ;;
+  l)
+    echo "list templates" >&2
+    LISTTEMPLATES=1
+    ;;
+
+
+  u)
+    GETUPDATE=1
+    ;;
+  a)
+    # Pull All, Prep Directory
+    echo "start prep"
+    FETCHSYNTAX=1
+    FETCHTEMPLATES=1
+    ;;
+  \?)
+    printf "\n{ERRTXT}%s${NRMTXT}%s\n" "Invalid option: " "-$OPTARG"
     DisplayHelp
     exit 1
-  ;;
-esac
+    ;;
+  :)
+    printf "\n{ERRTXT}%s${NRMTXT}%s${ERRTXT}%s${NRMTXT}\n" \
+      "Option " "-$OPTARG" " requires an argument."
+    DisplayHelp
+    exit 1
+    ;;
+  esac
+done
+}
 
+  # Check if run as root, if root then exit
+IsRoot() {
+  # Check if the script is run as root
+  if [ "$(id -u)" = "0" ]; then
+    printf "${ERRTXT}%s${NRMTXT}" \
+      "Do not run the script as root."
+     exit 1
+  fi
+}
+
+  # Check the input for all arguments for validity prior to running funcions
+CheckValid() {
+  if [ -v ${SYNAPP} ]; then # confirmed
+  #  PrepSyntax
+    case "${SYNAPP}" in 
+      vim)
+        echo "Nothing">/dev/null
+        ;;
+      emacs)
+        echo "Nothing">/dev/null
+        ;;
+      *)
+        printf "${ERRTXT}%s${NRMTXT}\n" "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
+        ISERROR=1
+        ;;
+    esac
+  fi
+
+  # Verify that the URL entered is not a local file or directory
+  if [ -v ${GETURL} ];then
+    if [ -d ${GETURL} ]; then
+      printf "${ERRTXT}%s${NRMTXT}\n" "Directory ${GETURL} input into -u. Url Must be entered"
+      ISERROR=1
+    fi
+    if [ -f ${GETURL} ]; then
+      printf "${ERRTXT}%s${NRMTXT}\n" "File ${GETURL} input into -u. Url Must be entered"
+      ISERROR=1
+    fi
+  fi
+
+  if [ -v ${ISERROR} ]; then
+    exit 1
+  fi
+
+  # Verify that the FILE entered is not a local directory
+  if [ -v ${GETFILE} ];then
+    if [ ! -f  ${GETFILE} ]; then
+      printf "${ERRTXT}%s${NRMTXT}\n" "File ${GETFILE} does not exist. Cannot continue."
+      ISERROR=1
+    fi
+  fi
+
+  if [ ! -f ${COPYFILE} ]; then
+    prinf "${ERRTXT}%s${NRMTXT}\n" "You cannot copy ${COPYFILE}, it does not exist."
+    ISERROR=1
+  fi
+
+  if [ ! -f ${TEMP_FILE} ]; then
+  else
+    if [ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})"]; then
+      printf "${ERRTXT}%s${NRMTXT}" "The template ${USETEMPLATE} does not exist"
+      ISERROR=1
+    fi
+  fi
+
+  #NEWFILE
+  # Check for existance in the function, if exists then request to overwrite
+
+  if [ -v ${ISERROR} ]; then
+    exit 1
+  fi
+}
+
+  # Start Running through options in programatic order
+RunFunctions() {
+  if [ -v ${FETCHSYNTAX} ]; then # confirmed
+  #  GetSyntaxExample
+    echo "Fetch Syntax"
+  fi
+  if [ -v ${SYNAPP} ]; then # confirmed
+  #  PrepSyntax
+    echo "Set Syntax for ${SYNAPP}"
+  fi
+
+  #REFRESHTEMPLATES
+  if [ -v ${FETCHTEMPLATES} ]; then
+  #  PullTemplates
+    echo "Pull the Templates"
+  fi
+  #LISTTEMPLATES
+
+  if [ -v ${GETURL} ]; then
+    # If no destination directory is added default to the slackdoc dir
+    if [ ! -v ${DESTDIR} ]; then
+      DESTDIR=${SD_DIR}
+    fi
+  #  PullPage
+    echo "Pull Page ${GETURL} into ${DESTDIR}"
+  fi
+
+  if [ -v ${GETFILE} ]; then
+    # If no destination directory is added default to the slackdoc dir
+    if [ ! -v ${DESTDIR} ]; then
+      DESTDIR=${SD_DIR}
+    fi
+    #  PullFromList
+    echo "Pull Pages from ${GETFILE} into ${DESTDIR}"
+  fi
+
+  #COPYFILE
+
+  #USETEMPLATE
+  #NEWFILE
+
+  if [ -v ${GETUPDATE} ]; then
+  #  CheckUpdate
+    echo "Check for an update"
+  fi
+}
+
+# Check if run as root, if root then exit
+IsRoot
+
+# Test all Arguments
+CheckArgs
+
+# Verify that no invalid arguments are given
+CheckValid
+if [ -v ${ISERROR} ]; then
+  exit 1
+fi
+
+# If no errors, then run the functions
+RunFunctions
+
+# If it succeeds until now it processed successfully
 exit 0
