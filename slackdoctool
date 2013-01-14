@@ -2,7 +2,7 @@
 # Author: Matthew Fillpot
 # Created: 2012-12-28
 # License: BSD
-VERSION="0.0.4"
+VERSION="0.1.0"
 #
 # Description
 # -------------------------------------------------------
@@ -114,7 +114,7 @@ PullPage() {
   fi
 
   if [ ! -d ${DESTDIR} ]; then
-    printf "\n${ERRTXT}%s${NRMTXT}\n" "The ${DESTDIR} directory does not exist, terminating action"
+    WriteText 2 "${ERRTXT}" "The ${DESTDIR} directory does not exist, terminating action" 1
     exit 1
   fi
 
@@ -177,10 +177,10 @@ FinishPull() {
   # Test for a valid pull and display associated message
   if [ -n "$(cat ${OUTFILE}|grep ${FAILTEXT})" ]; then
     rm ${OUTFILE}
-    printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESCRIPT} does not exist"
+    WriteText 2 "${ERRTXT}" "${DESCRIPT} does not exist" 1
 	unset F_STATUS
   else
-    printf "\n${SCSTXT}%s${NRMTXT}\n" "${OUTFILE} is ready to edit"
+    WriteText 2 "${SCSTXT}" "${OUTFILE} is ready to edit" 1
 	F_STATUS=0
   fi
 }
@@ -210,8 +210,7 @@ PullFromList() {
 
 GetSyntaxExample () {
       PullPage "wiki:syntax" ${SD_DIR}
-      printf "${SCSTXT}%s${NRMTXT}\n" \
-        "The example syntax file is now located at ${SD_DIR}/wiki-syntax.${EXTENSION}"
+      WriteText 0 "${NRMTXT}" "The example syntax file is now located at ${SD_DIR}/wiki-syntax.${EXTENSION}" 1
 }
 
 PrepSyntax() {
@@ -438,86 +437,152 @@ CheckUpdate() {
   fi
 }
 
+HelpArg() {
+
+  OPT="${1}"
+  ARG="${2}"
+  DISTXT="${3}"
+
+  IND=8
+  HIND=$((${IND}-4))
+  SPC=2
+
+  WriteText ${HIND} "${BLDTXT}" "${OPT}  ${ARG}" 1
+  WriteText ${IND} "${NRMTXT}" "${DISTXT}" 1
+
+}
+
+WriteText() {
+  # Arg1 = Indent Count
+  # Arg2 = Font Formatting
+  # Arg3 = Input Text
+  # Arg4 = 1 - newline, 0 - no newline
+
+  INDENT=${1}
+  FORMAT="${2}"
+  INPUTTEXT="${3}"
+  if [ "${4}" = "1" ]; then
+    NEWLINE="\n"
+  else
+    NEWLINE=""
+  fi
+
+  NEWSTR=""
+  for WORD in ${INPUTTEXT}
+  do
+    if [ "${NEWSTR}" = "" ]; then
+        NEWSTR="${WORD}"
+    else
+      TSTSTR="${NEWSTR}${WORD} "
+      if [ ${#TSTSTR} -lt $(($(tput cols)-${INDENT})) ]; then 
+        NEWSTR="${NEWSTR} ${WORD}"
+      else
+        printf "%*s" ${INDENT} ""
+        printf "${FORMAT}%s${NRMTXT}${NEWLINE}" "${NEWSTR}"
+        NEWSTR="${WORD}"
+      fi
+    fi
+  done
+
+  printf "%*s" ${INDENT} ""
+  printf "${FORMAT}%s${NRMTXT}${NEWLINE}" "${NEWSTR}"
+}
+
   # The help dialog
 DisplayHelp() {
 # Displays the help text
 
   # Definte the basic formatting for each level of the output
-  local NOARG="$\n${BLDTXT}%s\t${NRMTXT}%s\n"
-  local WITHARG="$\n{BLDTXT}%s %s\n\t${NRMTXT}%s\n"
+  WriteText 4 "${SCSTXT}" "Slackware Documentation Project - Off-line Tools" 1
+  WriteText 4 "${BLDTXT}" "Version: ${VERSION}" 1
+  WriteText 0 "" "" 1
+  WriteText 6 "${BLDTXT}" "Slackdocs Website:" 1
+  WriteText 8 "${NRMTXT}" "http://docs.slackware.com" 1
+  WriteText 6 "${BLDTXT}" "Project URL:" 1
+  WriteText 8 "${NRMTXT}" "https://github.com/mfillpot/slackdoc_templates" 1
+  WriteText 0 "" "" 1
+  #printf "${BLDTXT}%s${NRMTXT} %s\n" "Version:" "${VERSION}"
 
-  printf "\n${BLDTXT}%s${NRMTXT}\n" "Slackware Documentation Project - Off-line Tools"
-
-  printf "\n${BLDTXT}%s${NRMTXT} %s\n" "Slackdocs Website:" "http://docs.slackware.com"
-  printf "${BLDTXT}%s${NRMTXT} %s\n" "Project URL:" "https://github.com/mfillpot/slackdoc_templates"
-  printf "${BLDTXT}%s${NRMTXT} %s\n" "Version:" "${VERSION}"
-
-  printf "\n${BLDTXT}%s${NRMTXT}" "OPTIONS"
-  printf "${L1}" \
-    "help" \
-      "- Displays this dialog"
-
-  printf "${L1}" \
-    "fetch" \
-      "- Fetches a wiki formatted page from docs.slackware.com."
-  printf "${L2}" \
-    "{URL}" \
-      "- Can be from the site root or the whole address."
-  printf "${L3}" \
-    "{Destination Directory}" \
-      "- if ommited it will be in the default slackdoc directory."
-  printf "${L2}" \
-    "{FILE}" \
-      "- A file that contains a list of pages to fetch."
-  printf "${L3}" \
-    "{Destination Directory}" \
-      "- Optional: if ommited it will be in the default slackdoc directory."
-
-  printf "${L2}" \
-    "templates" \
-      "- Can be from the site root or the whole address."
-  printf "${L2}" \
-    "syntax" \
-      "- Fetch the example syntax file from slackdocs wiki."
-
-  printf "${L1}" \
-    "templates" \
-      "- Displays a list of templates that are available."
-  printf "${L2}" \
-    "[refresh]" \
-      "- Optional: Refreshes a list of available templates."
-
-  printf "${L1}" \
-    "new" \
-      "- Creates a new document based on a template."
-  printf "${L2}" \
-    "index_number" \
-      "- Template index number."
-  printf "${L3}" \
-    "title" \
-      "- Document title."
-
-  printf "${L1}" \
-    "syntax" \
-      "- Applies the associated syntax file for use."
-  printf "${L2}" \
-    "vim" \
-      "- Applies the changes to .vimrc to enable slackdoc syntax highlighting."
-  printf "${L2}" \
-    "kate" \
-      "- Display instruction for enabling syntax highlighting in kate."
-
-  printf "${L1}" \
-    "copy" \
-      "- Copies the contents of a file to the clipboard."
-  printf "${L2}" \
-    "{FileName}" \
-      "- The file to copy."
-
-  printf "${L1}" \
-    "update" \
-      "- Check for and download this scripts update"
-  printf "\n"
+  #printf "\n"
+  WriteText 0 "${BLDTXT}" "OPTIONS" 1
+  HelpArg "-h" "" "Display this dialog"
+  HelpArg "-S" "" "Fetch the syntax file(s)."
+  HelpArg "-s" "Application Name" "Apply the syntaz highlighting file for the chosen app. Valid options are kate and vim."
+  HelpArg "-T" "" "Fetch all templates from the website"
+  HelpArg "-w" "URL" "Fetch an article from the slackdoc URL given. If the -d argument is not given it will save in the slackdocs directory."
+  HelpArg "-f" "File" "Fetch articles from the dlsckdoc wiki from the list contained within the specified file. If no -d option is given it will save the documents into the slackdocs directory."
+  HelpArg "-d" "Destination Directory" "Only valid with the -f and -w arguments. This specifies the destination directory which will containthe fetched file(1)."
+  HelpArg "-c" "File" "Copy the file's contents into the clipboard."
+  HelpArg "-n" "Template Number" "Create a new file based upon the specified template. The template list can be viewed with the -l option."
+  HelpArg "-o" "FileName" "Only used with the -n option. The argument will containthe name of the new output file."
+  HelpArg "-r" "" "Refresh the list of templates from the slackdocs wiki."
+  HelpArg "-l" "" "List all available templates."
+  HelpArg "-u" "" "Check for and download updates to this script."
+  HelpArg "-a" "" "Download all base and syntax files from the slackdocs wiki."
+  #printf "${L1}" \
+  #  "help" \
+  #    "- Displays this dialog"
+  #Printf "${L1}" \
+  #  "fetch" \
+  #    "- Fetches a wiki formatted page from docs.slackware.com."
+  #printf "${L2}" \
+  #  "{URL}" \
+  #    "- Can be from the site root or the whole address."
+  #printf "${L3}" \
+  #  "{Destination Directory}" \
+  #    "- if ommited it will be in the default slackdoc directory."
+  #printf "${L2}" \
+  #  "{FILE}" \
+  #    "- A file that contains a list of pages to fetch."
+  #printf "${L3}" \
+  #  "{Destination Directory}" \
+  #    "- Optional: if ommited it will be in the default slackdoc directory."
+  #
+  #printf "${L2}" \
+  #  "templates" \
+  #    "- Can be from the site root or the whole address."
+  #printf "${L2}" \
+  #  "syntax" \
+  #    "- Fetch the example syntax file from slackdocs wiki."
+  #
+  #printf "${L1}" \
+  #  "templates" \
+  #    "- Displays a list of templates that are available."
+  #printf "${L2}" \
+  #  "[refresh]" \
+  #    "- Optional: Refreshes a list of available templates."
+  #
+  #printf "${L1}" \
+  #  "new" \
+  #    "- Creates a new document based on a template."
+  #printf "${L2}" \
+  #  "index_number" \
+  #    "- Template index number."
+  #printf "${L3}" \
+  #  "title" \
+  #    "- Document title."
+  #
+  #printf "${L1}" \
+  #  "syntax" \
+  #    "- Applies the associated syntax file for use."
+  #printf "${L2}" \
+  #  "vim" \
+  #    "- Applies the changes to .vimrc to enable slackdoc syntax highlighting."
+  #printf "${L2}" \
+  #  "kate" \
+  #    "- Display instruction for enabling syntax highlighting in kate."
+  #
+  #printf "${L1}" \
+  #  "copy" \
+  #    "- Copies the contents of a file to the clipboard."
+  #printf "${L2}" \
+  #  "{FileName}" \
+  #    "- The file to copy."
+  #
+  #printf "${L1}" \
+  #  "update" \
+  #    "- Check for and download this scripts update"
+  #printf "\n"
 }
 
   # The old Argument checkin mechanism
@@ -611,6 +676,12 @@ esac
 
   # Cycle through the args setting valiables
 CheckArgs () {
+
+  if [ "${#}" = "0" ]; then
+    DisplayHelp
+    exit 1
+  fi
+
 while getopts ":ac:d:f:hln:o:rs:uw:ST" opt; do
     case $opt in
   h)
@@ -620,76 +691,78 @@ while getopts ":ac:d:f:hln:o:rs:uw:ST" opt; do
 
 
   S)
-    echo "fetch syntax file" >&2
+    #echo "fetch syntax file" >&2
     FETCHSYNTAX=1
     ;;
   s)
-    echo "apply syntax to APP $OPTARG" >&2
+    #echo "apply syntax to APP $OPTARG" >&2
     SYNAPP=${OPTARG}
     ;;
   T)
-    echo "fetch templates" >&2
+    #echo "fetch templates" >&2
     FETCHTEMPLATES=1
     ;;
 
 
   w)
-    echo "Grab URL $OPTARG" >&2
+    #echo "Grab URL $OPTARG" >&2
     GETURL=${OPTARG}
     ;;
   f)
-    echo "READ from file $OPTARG" >&2
+    #echo "READ from file $OPTARG" >&2
     GETFILE=${OPTARG}
     ;;
   d)
-    echo "Save to destination - $OPTARG" >&2
+    #echo "Save to destination - $OPTARG" >&2
     DESTDIR=${OPTARG}
     ;;
 
 
   c)
-    echo "copy $OPTARG to clipboard" >&2
+    #echo "copy $OPTARG to clipboard" >&2
     COPYFILE=${OPTARG}
     ;;
 
 
   n)
-    echo "Create new article based upon $OPTARG" >&2
+    #echo "Create new article based upon $OPTARG" >&2
     USETEMPLATE=${OPTARG}
     ;;
   o)
-    echo "New File will be named $OPTARG" >&2
+    #echo "New File will be named $OPTARG" >&2
     NEWFILE=${OPTARG}
     ;;
 
 
   r)
-    echo "refresh templates" >&2
+    #echo "refresh templates" >&2
     REFRESHTEMPLATES=1
     ;;
   l)
-    echo "list templates" >&2
+    #echo "list templates" >&2
     LISTTEMPLATES=1
     ;;
 
 
   u)
+    #echo "get updates"
     GETUPDATE=1
     ;;
   a)
     # Pull All, Prep Directory
-    echo "start prep"
+    #echo "start prep"
     FETCHSYNTAX=1
     FETCHTEMPLATES=1
     ;;
   \?)
-    printf "\n{ERRTXT}%s${NRMTXT}%s\n" "Invalid option: " "-$OPTARG"
+    WriteText 0 "${ERRTXT}" "Invalid option:-$OPTARG" 1
+    WriteText 0 "" "" 1
     DisplayHelp
     exit 1
     ;;
   :)
-    printf "\n{ERRTXT}%s${NRMTXT}%s${ERRTXT}%s${NRMTXT}\n" \
-      "Option " "-$OPTARG" " requires an argument."
+    WriteText 0 "${ERRTXT}" "Option -$OPTARG requires an argument." 1
+    WriteText 0 "" "" 1
     DisplayHelp
     exit 1
     ;;
@@ -709,73 +782,85 @@ IsRoot() {
 
   # Check the input for all arguments for validity prior to running funcions
 CheckValid() {
-  if [ -v ${SYNAPP} ]; then # confirmed
+  if [ -n "${SYNAPP}" ]; then # confirmed
   #  PrepSyntax
     case "${SYNAPP}" in 
       vim)
         echo "Nothing">/dev/null
         ;;
-      emacs)
+      kate)
         echo "Nothing">/dev/null
         ;;
       *)
-        printf "${ERRTXT}%s${NRMTXT}\n" "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
+        WriteText 2 "${ERRTXT}" "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included." 1
         ISERROR=1
         ;;
     esac
   fi
 
   # Verify that the URL entered is not a local file or directory
-  if [ -v ${GETURL} ];then
-    if [ -d ${GETURL} ]; then
-      printf "${ERRTXT}%s${NRMTXT}\n" "Directory ${GETURL} input into -u. Url Must be entered"
-      ISERROR=1
-    fi
-    if [ -f ${GETURL} ]; then
-      printf "${ERRTXT}%s${NRMTXT}\n" "File ${GETURL} input into -u. Url Must be entered"
-      ISERROR=1
-    fi
-  fi
-
-  if [ -v ${ISERROR} ]; then
-    exit 1
-  fi
-
-  # Verify that the FILE entered is not a local directory
-  if [ -v ${GETFILE} ];then
-    if [ ! -f  ${GETFILE} ]; then
-      printf "${ERRTXT}%s${NRMTXT}\n" "File ${GETFILE} does not exist. Cannot continue."
-      ISERROR=1
-    fi
-  fi
-
-  if [ ! -f ${COPYFILE} ]; then
-    prinf "${ERRTXT}%s${NRMTXT}\n" "You cannot copy ${COPYFILE}, it does not exist."
+  if [ -n "${GETURL}" ]&&[ -d ${GETURL} ]; then
+    WriteText 2 "${ERRTXT}" "Directory ${GETURL} was input into -u. A Url Must be entered" 1
+    ISERROR=1
+  elif [ -n "${GETURL}" ]&&[ -f ${GETURL} ]; then
+    WriteText 2 "${ERRTXT}" "File ${GETURL} was input into -u. A Url Must be entered" 1
     ISERROR=1
   fi
 
-  if [ ! -f ${TEMP_FILE} ]; then
-  else
-    if [ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})"]; then
-      printf "${ERRTXT}%s${NRMTXT}" "The template ${USETEMPLATE} does not exist"
-      ISERROR=1
-    fi
+  # Verify that the FILE entered is not a local directory
+  if [ -n "${GETFILE}" ]&&[ ! -f  ${GETFILE} ]; then
+    WriteText 2 "${ERRTXT}" "File ${GETFILE} does not exist. Cannot continue." 1
+    ISERROR=1
   fi
+
+  if [ -n "${DESTDIR}" ]&&[ -z "${GETFILE}" ]&&[ -z "${GETURL}" ]; then
+    WriteText 2 "${ERRTXT}" "Output directories are only valid when fetching URLs or a list of URLs, the option is being ignored" 1
+  fi
+
+
+  if [ ! -f ${COPYFILE} ]; then
+    WriteText 2 "${ERRTXT}" "You cannot copy ${COPYFILE}, it does not exist." 1
+    ISERROR=1
+  fi
+
+  if [ -n "${USERTEMPLATE}" ]&&[ ! -f "${TEMP_FILE}" ]; then
+    WriteText 2 "${ERRTXT}" "No template list available, use the -r option to pull the updated list of templates."
+  fi
+
+  #if [ -n "${USERTEMPLATE}" ]&&[ -f "${TEMP_FILE}" ]&&[ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})" ]; then
+  #  WriteText 2 "${ERRTXT}" "The template ${USETEMPLATE} does not exist." 1
+  #  ISERROR=1
+  #fi
+
+#  if [ -n "${USETEMPLATE}" ]; then
+#    if [ ! -f ${TEMP_FILE} ]; then
+#      WriteText 2 "${ERRTXT}" "No template list available, use the -r option to pull the updated list of templates."
+#    else
+#      if [ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})"]; then
+#        WriteText 2 "${ERRTXT}" "The template ${USETEMPLATE} does not exist." 1
+#        ISERROR=1
+#      fi
+#    fi
+#  fi
 
   #NEWFILE
   # Check for existance in the function, if exists then request to overwrite
 
-  if [ -v ${ISERROR} ]; then
+  if [ -n "${ISERROR}" ]; then
     exit 1
   fi
 }
 
   # Start Running through options in programatic order
 RunFunctions() {
-  if [ -v ${FETCHSYNTAX} ]; then # confirmed
-  #  GetSyntaxExample
-    echo "Fetch Syntax"
+  if [ -n "${FETCHSYNTAX}" ]; then # confirmed
+    GetSyntaxExample
+    #echo "Fetch Syntax"
   fi
+
+  exit 1
+
+  # Matt working
   if [ -v ${SYNAPP} ]; then # confirmed
   #  PrepSyntax
     echo "Set Syntax for ${SYNAPP}"
@@ -817,17 +902,17 @@ RunFunctions() {
   fi
 }
 
+#DisplayHelp
+#exit 1
+
 # Check if run as root, if root then exit
 IsRoot
 
 # Test all Arguments
-CheckArgs
+CheckArgs "$@"
 
 # Verify that no invalid arguments are given
 CheckValid
-if [ -v ${ISERROR} ]; then
-  exit 1
-fi
 
 # If no errors, then run the functions
 RunFunctions
