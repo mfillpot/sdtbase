@@ -66,6 +66,117 @@ SCSTXT=$(tput setaf 2)
 #REVERSE=$(tput smso)
 #UNDERLINE=$(tput smul)
 
+GetSyntaxExample () {
+      PullPage "wiki:syntax" ${SD_DIR}
+      WriteText 0 "${NRMTXT}" "The example syntax file is now located at ${SD_DIR}/wiki-syntax.${EXTENSION}" 1
+}
+
+PrepSyntax() {
+  case "${SYNAPP}" in
+    vim)
+      VImSyntax
+      ;;
+    kate)
+      KateSyntax
+      ;;
+    *)
+      PrintError "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
+      exit 1
+      ;;
+  esac
+}
+
+VimSyntax() {
+  # Update/ Appends the necessary directive to the users .vimrc
+  #  file to set syntax highlighting for slackdocs
+
+  local VIMRC="${HOME}/.vimrc"
+
+  wget ${SYNTAX_URL}/${SYNF_VIM} --output-document=${SD_DIR}/.${SYNF_VIM}
+
+  # removes existing slackdoc syntax template lines if they exist
+  sed -i /${FILETYPE}/d ${VIMRC}
+
+  # Write the new lines to the vimrc file
+  echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
+  echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
+  echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
+
+  PrintText 2 "${SCSTXT}" "The script has added the following lines to your vimrc file" 1
+  cat ${VIMRC} | grep ${FILETYPE}
+  printf "\n"
+}
+
+KateSyntax() {
+  PrintText 2 "${BLDTXT}" \
+          "To implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to Tools -> Highlighting -> Markup -> Mediawiki." 1
+}
+
+# Verified
+PullTemplates() {
+	# Pulls the listed template files into the templates directory
+
+  # Checks if the templte directory exists
+	if [ ! -d ${TEMPLATE_DIR} ]; then
+    mkdir ${TEMPLATE_DIR}
+  fi
+  
+  # Populates the TEMPS array
+  SetTemps
+
+  # Pulls the templates listed in the TEMPS array.
+	for TEMPLATE in "${TEMPS[@]}"
+  do
+    PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
+  done
+  printf "\n${SCSTXT}%s${NRMTXT}\n" "All templates have been successfully retrieved."
+}
+
+SetTemps() {
+  # Sets an array with the contents of the template index 
+  if [ ! -f ${TEMP_FILE} ]; then
+    RefreshTemplates
+  else
+    TEMPS=( $(cat ${TEMP_FILE}) )
+  fi
+}
+
+RefreshTemplates() {
+  # Refresh the list of available templates
+
+  # Check if the directory structure exists
+  if [ ! -f ${TEMP_FILE} ]; then
+    BuildStructure
+  fi
+  
+  printf "\n%s\n" "Refreshing the list of available templates..."
+  lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
+  
+  # Make the order of the templates more structured
+  sort ${TEMP_FILE} -o ${TEMP_FILE}
+
+  # Populates the TEMPS array with a list of available templates
+  TEMPS=( $(cat $TEMP_FILE) )
+}
+
+AvailableTemplates() {
+  # Displays a list of available templates and usage
+  
+  # Make sure that the TEMPS array is set
+  SetTemps
+
+  printf "\n%s\n" "To create a new document using a template type:"
+  printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
+  printf "\n%s\n\n" "The following templates are available:"
+  
+	# Loop over the TEMPS array to display available templates 
+  for i in ${!TEMPS[*]}
+  do
+    printf "%4d: %s\n" $i ${TEMPS[$i]}
+  done
+  printf "\n"
+}
+
 BuildStructure() 
 {
   # Accepts no arguments, builds directory structure
@@ -208,119 +319,6 @@ PullFromList() {
   echo
 }
 
-GetSyntaxExample () {
-      PullPage "wiki:syntax" ${SD_DIR}
-      WriteText 0 "${NRMTXT}" "The example syntax file is now located at ${SD_DIR}/wiki-syntax.${EXTENSION}" 1
-}
-
-PrepSyntax() {
-  case "${SYNAPP}" in
-    vim)
-      VImSyntax
-      ;;
-    kate)
-      KateSyntax
-      ;;
-    *)
-      prinf "${ERRTXT}%s${NRMTXT}" "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
-      exit 1
-      ;;
-  esac
-}
-
-VimSyntax() {
-  # Update/ Appends the necessary directive to the users .vimrc
-  #  file to set syntax highlighting for slackdocs
-
-  local VIMRC="${HOME}/.vimrc"
-
-  wget ${SYNTAX_URL}/${SYNF_VIM} --output-document=${SD_DIR}/.${SYNF_VIM}
-
-  # removes existing slackdoc syntax template lines if they exist
-  sed -i /${FILETYPE}/d ${VIMRC}
-
-  # Write the new lines to the vimrc file
-  echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
-  echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
-  echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
-
-  printf "\n${SCSTXT}%s${NRMTXT}\n\n" "The script has added the following lines to your vimrc file"
-  cat ${VIMRC} | grep ${FILETYPE}
-  printf "\n"
-}
-
-KateSyntax() {
-        printf "\n${NTMTXT}%s${BLDTXT}%s${NRMTXT}%s\n" \
-          "To implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to " \
-          "Tools -> Highlighting -> Markup -> Mediawiki" \
-          "."
-}
-
-PullTemplates() {
-	# Pulls the listed template files into the templates directory
-
-  # Checks if the templte directory exists
-	if [ ! -d ${TEMPLATE_DIR} ]; then
-    mkdir ${TEMPLATE_DIR}
-  fi
-  
-  # Populates the TEMPS array
-  SetTemps
-
-  # Pulls the templates listed in the TEMPS array.
-	for TEMPLATE in "${TEMPS[@]}"
-  do
-    PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
-  done
-  printf "\n${SCSTXT}%s${NRMTXT}\n" "All templates have been successfully retrieved."
-}
-
-SetTemps() {
-  # Sets an array with the contents of the template index 
-  if [ ! -f ${TEMP_FILE} ]; then
-    RefreshTemplates
-  else
-    TEMPS=( $(cat ${TEMP_FILE}) )
-  fi
-}
-
-RefreshTemplates() {
-  # Refresh the list of available templates
-
-  # Check if the directory structure exists
-  if [ ! -f ${TEMP_FILE} ]; then
-    BuildStructure
-  fi
-  
-  printf "\n%s\n" "Refreshing the list of available templates..."
-  lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
-  
-  # Make the order of the templates more structured
-  sort ${TEMP_FILE} -o ${TEMP_FILE}
-
-  # Populates the TEMPS array with a list of available templates
-  TEMPS=( $(cat $TEMP_FILE) )
-}
-
-AvailableTemplates() {
-  # Displays a list of available templates and usage
-  
-  # Make sure that the TEMPS array is set
-  SetTemps
-
-  printf "\n%s\n" "To create a new document using a template type:"
-  printf "\n\e[1m%s\e[0m%s\n" "slackdoctool new template_number document_title"
-  printf "\n%s\n\n" "The following templates are available:"
-  
-	# Loop over the TEMPS array to display available templates 
-  for i in ${!TEMPS[*]}
-  do
-    printf "%4d: %s\n" $i ${TEMPS[$i]}
-  done
-  printf "\n"
-}
-
-  CLEAN=0
 CreateNew() {
   # Copies a template into a new filename and sets it for editing
 
@@ -447,12 +445,23 @@ HelpArg() {
   HIND=$((${IND}-4))
   SPC=2
 
-  WriteText ${HIND} "${BLDTXT}" "${OPT}  ${ARG}" 1
-  WriteText ${IND} "${NRMTXT}" "${DISTXT}" 1
+  PrintText ${HIND} "${BLDTXT}" "${OPT}  ${ARG}" 1
+  PrintText ${IND} "${NRMTXT}" "${DISTXT}" 1
 
 }
 
-WriteText() {
+PrintError() {
+  # Arg1 = Text To Display
+
+  #Writes the string in the error color with a blank lin following it
+
+  local ERROR_TEXT="${1}"
+
+  PrintText 2 "${ERRTXT}" "${ERROR_TEXT}" 1
+  PrintText 0 "" "" 1
+}
+
+PrintText() {
   # Arg1 = Indent Count
   # Arg2 = Font Formatting
   # Arg3 = Input Text
@@ -858,14 +867,12 @@ RunFunctions() {
     #echo "Fetch Syntax"
   fi
 
-  exit 1
-
-  # Matt working
   if [ -v ${SYNAPP} ]; then # confirmed
   #  PrepSyntax
     echo "Set Syntax for ${SYNAPP}"
   fi
 
+  exit 1
   #REFRESHTEMPLATES
   if [ -v ${FETCHTEMPLATES} ]; then
   #  PullTemplates
