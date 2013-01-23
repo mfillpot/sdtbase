@@ -16,7 +16,10 @@ VERSION="0.1.0"
 #   12. Add a page to the wiki with vim optimizations and refer to them in the script
 #   13. Clean up the script
 #   14. Add hooks for IsOnline where appropriate
-#  
+#   15. Make a function to write list of templates into an array using the
+#     read line function
+#   15. Change SetTemps to use the function to set templates
+#   16. Change RefreshTemplates to use the function to set templates
 
 # Define the path to the repo directory
 TMP_DIR="/tmp"
@@ -112,7 +115,6 @@ KateSyntax() {
           "To implement syntax highlighting to slackdoc articles in kate you need to enable the MediaWiki syntax highlighting by going to Tools -> Highlighting -> Markup -> Mediawiki." 1
 }
 
-# Verified
 PullTemplates() {
 	# Pulls the listed template files into the templates directory
 
@@ -129,7 +131,7 @@ PullTemplates() {
   do
     PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
   done
-  printf "\n${SCSTXT}%s${NRMTXT}\n" "All templates have been successfully retrieved."
+  PrintText 2 "${SCSTXT}" "All templates have been successfully retrieved." 1
 }
 
 SetTemps() {
@@ -149,7 +151,7 @@ RefreshTemplates() {
     BuildStructure
   fi
   
-  printf "\n%s\n" "Refreshing the list of available templates..."
+  PrintText 2 "${BLDTXT}"  "Refreshing the list of available templates..." 1
   lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
   
   # Make the order of the templates more structured
@@ -159,6 +161,7 @@ RefreshTemplates() {
   TEMPS=( $(cat $TEMP_FILE) )
 }
 
+# Verified
 AvailableTemplates() {
   # Displays a list of available templates and usage
   
@@ -434,6 +437,8 @@ CheckUpdate() {
     esac
   fi
 }
+
+# Copied to Here
 
 HelpArg() {
 
@@ -867,31 +872,31 @@ RunFunctions() {
     #echo "Fetch Syntax"
   fi
 
-  if [ -v ${SYNAPP} ]; then # confirmed
+  if [ -n "${SYNAPP}" ]; then # confirmed
   #  PrepSyntax
     echo "Set Syntax for ${SYNAPP}"
   fi
 
   exit 1
   #REFRESHTEMPLATES
-  if [ -v ${FETCHTEMPLATES} ]; then
+  if [ "${FETCHTEMPLATES}" = "1" ]; then
   #  PullTemplates
     echo "Pull the Templates"
   fi
   #LISTTEMPLATES
 
-  if [ -v ${GETURL} ]; then
+  if [ -n "${GETURL}" ]; then
     # If no destination directory is added default to the slackdoc dir
-    if [ ! -v ${DESTDIR} ]; then
+    if [ -z "${DESTDIR}" ]; then
       DESTDIR=${SD_DIR}
     fi
   #  PullPage
     echo "Pull Page ${GETURL} into ${DESTDIR}"
   fi
 
-  if [ -v ${GETFILE} ]; then
+  if [ -n "${GETFILE}" ]; then
     # If no destination directory is added default to the slackdoc dir
-    if [ ! -v ${DESTDIR} ]; then
+    if [ -z "${DESTDIR}" ]; then
       DESTDIR=${SD_DIR}
     fi
     #  PullFromList
@@ -903,7 +908,7 @@ RunFunctions() {
   #USETEMPLATE
   #NEWFILE
 
-  if [ -v ${GETUPDATE} ]; then
+  if [ -n "${GETUPDATE} ]"; then
   #  CheckUpdate
     echo "Check for an update"
   fi
