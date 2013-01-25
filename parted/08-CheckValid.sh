@@ -42,12 +42,14 @@ exit 1
     ISERROR=1
   fi
 
-  if [ -n "${USERTEMPLATE}" ]&&[ ! -f "${TEMP_FILE}" ]; then
+  if [ -n "${USETEMPLATE}" ]&&[ ! -f "${TEMP_FILE}" ]; then
     PrintText 2 "${ERRTXT}" "No template list available, use the -r option to pull the updated list of templates."
+	if ! grep -xq "${USETEMPLATE}" "${TEMP_FILE}"; then
+		PrintText 2 "${ERRTXT}" "No such template exists, use the -l option to list available templates."
+	fi
   fi
 
-  #if [ -n "${USERTEMPLATE}" ]&&[ -f "${TEMP_FILE}" ]&&[ -z "$(cat
-${TEMP_FILE} | grep ${USETEMPLATE})" ]; then
+  #if [ -n "${USERTEMPLATE}" ]&&[ -f "${TEMP_FILE}" ]&&[ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})" ]; then
   #  PrintText 2 "${ERRTXT}" "The template ${USETEMPLATE} does not exist." 1
   #  ISERROR=1
   #fi
