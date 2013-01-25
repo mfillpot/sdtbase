@@ -52,6 +52,7 @@ exit 1
 				PrintError "No such template exists, use the -l option to list available templates."
 				ISERROR=1
 			fi
+		fi
 	fi
 
   #if [ -n "${USERTEMPLATE}" ]&&[ -f "${TEMP_FILE}" ]&&[ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})" ]; then
