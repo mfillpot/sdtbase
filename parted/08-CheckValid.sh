@@ -46,9 +46,9 @@ exit 1
 		if [ ! -f "${TEMP_FILE}" ]; then
 			PrintError "No template list available, use the -r option to pull the updated list of templates."
 			ISERROR=1
-	  else
-		  TEMPS=( $(cat $TEMP_FILE) )
-		  if [[ "${USETEMPLATE}" -gt "${#TEMPS[@]}" ]]; then
+		else
+			TEMPS=( $(cat $TEMP_FILE) )
+			if [[ "${USETEMPLATE}" -gt "${#TEMPS[@]}" ]]; then
 				PrintError "No such template exists, use the -l option to list available templates."
 				ISERROR=1
 			fi
