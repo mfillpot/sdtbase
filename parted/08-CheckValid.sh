@@ -15,7 +15,6 @@ CheckValid() {
     esac
   fi
 
-exit 1
 
   # Verify that the URL entered is not a local file or directory
   if [ -n "${GETURL}" ]&&[ -d ${GETURL} ]; then
@@ -47,7 +46,7 @@ exit 1
       PrintError "No template list available, use the -r option to pull the updated list of templates."
       ISERROR=1
     else
-      TEMPS=( $(cat $TEMP_FILE) )
+      SetTemps
       if [[ "${USETEMPLATE}" -gt "${#TEMPS[@]}" ]]; then
         PrintError "No such template exists, use the -l option to list available templates."
         ISERROR=1
@@ -55,23 +54,6 @@ exit 1
     fi
   fi
 
-  #if [ -n "${USERTEMPLATE}" ]&&[ -f "${TEMP_FILE}" ]&&[ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})" ]; then
-  #  PrintText 2 "${ERRTXT}" "The template ${USETEMPLATE} does not exist." 1
-  #  ISERROR=1
-  #fi
-
-#  if [ -n "${USETEMPLATE}" ]; then
-#    if [ ! -f ${TEMP_FILE} ]; then
-#      PrintText 2 "${ERRTXT}" "No template list available, use the -r option
-#      to pull the updated list of templates."
-#    else
-#      if [ -z "$(cat ${TEMP_FILE} | grep ${USETEMPLATE})"]; then
-#        PrintText 2 "${ERRTXT}" "The template ${USETEMPLATE} does not
-#        exist." 1
-#        ISERROR=1
-#      fi
-#    fi
-#  fi
 
   #NEWFILE
   # Check for existance in the function, if exists then request to overwrite

@@ -10,8 +10,10 @@ CheckArgs "$@"
 # Verify that no invalid arguments are given
 CheckValid
 
-exit 0
-# If no errors, then run the functions
+#exit 0
+
+# If no errors, then check run the functions
+BuildStructure
 RunFunctions
 
 # If it succeeds until now it processed successfully
