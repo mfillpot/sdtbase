@@ -35,12 +35,13 @@ CheckValid() {
     PrintError "Output directories are only valid when fetching URLs or a list of URLs, the option is being ignored"
   fi
 
-
+  # Verify that the specified file exists
   if [ ! -f ${COPYFILE} ]; then
     PrintError "You cannot copy ${COPYFILE}, it does not exist."
     ISERROR=1
   fi
-
+  
+  # Verify that the specified template number exists
   if [ -n "${USETEMPLATE}" ]; then
     if [ ! -f "${TEMP_FILE}" ]; then
       PrintError "No template list available, use the -r option to pull the updated list of templates."
@@ -54,6 +55,9 @@ CheckValid() {
       fi
     fi
   fi
+  
+  #
+  
 
 
   #NEWFILE

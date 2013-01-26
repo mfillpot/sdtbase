@@ -45,7 +45,9 @@ RunFunctions() {
   fi
 
   #USETEMPLATE
-  # if [ -n "${USETEMPLATE}" ]; then
+  if [ -n "${USETEMPLATE}" ]&&[ -n "${NEWFILE}" ]; then
+    CreateNew "${USETEMPLATE}" "${NEWFILE}"
+  fi
 
   #NEWFILE
 
