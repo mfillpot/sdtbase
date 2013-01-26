@@ -45,6 +45,8 @@ RunFunctions() {
   fi
 
   #USETEMPLATE
+  # if [ -n "${USETEMPLATE}" ]; then
+
   #NEWFILE
 
   if [ -n "${GETUPDATE}" ]; then

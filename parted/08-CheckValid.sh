@@ -47,7 +47,8 @@ CheckValid() {
       ISERROR=1
     else
       SetTemps
-      if [[ "${USETEMPLATE}" -gt "${#TEMPS[@]}" ]]; then
+      let TEMPSINDEX=${#TEMPS[@]}-1
+      if [[ "${USETEMPLATE}" -gt "${TEMPSINDEX}" ]]||[[ "${USETEMPLATE}" -lt 0 ]]; then
         PrintError "No such template exists, use the -l option to list available templates."
         ISERROR=1
       fi
