@@ -10,17 +10,17 @@ RunFunctions() {
   fi
 
   #REFRESHTEMPLATES
-  if [ "${FETCHTEMPLATES}" = "1" ]; then
+  if [ "${FETCHTEMPLATES}" = "1" ]; then # confirmed
     PullTemplates
   fi
 
   #LISTTEMPLATES
-  if [ "${LISTTEMPLATES}" = "1" ]; then
+  if [ "${LISTTEMPLATES}" = "1" ]; then # confirmed
     AvailableTemplates
   fi
 
   # FETCH FROM URL
-  if [ -n "${GETURL}" ]; then
+  if [ -n "${GETURL}" ]; then # confirmed
     # If no destination directory is added default to the slackdoc dir
     if [ -z "${DESTDIR}" ]; then
       DESTDIR=${SD_DIR}
@@ -30,7 +30,7 @@ RunFunctions() {
   fi
   
   # FETCH FROM LIST
-  if [ -n "${GETFILE}" ]; then
+  if [ -n "${GETFILE}" ]; then # confirmed
     # If no destination directory is added default to the slackdoc dir
     if [ -z "${DESTDIR}" ]; then
       DESTDIR=${SD_DIR}
@@ -40,7 +40,7 @@ RunFunctions() {
   fi
 
   #COPYFILE
-  if [ -n "${COPYFILE}" ]; then
+  if [ -n "${COPYFILE}" ]; then # confirmed
     CopyToClipboard "${COPYFILE}"
   fi
 
