@@ -19,6 +19,7 @@ RunFunctions() {
     AvailableTemplates
   fi
 
+  # FETCH FROM URL
   if [ -n "${GETURL}" ]; then
     # If no destination directory is added default to the slackdoc dir
     if [ -z "${DESTDIR}" ]; then
@@ -27,7 +28,8 @@ RunFunctions() {
     #  PullPage
     PullPage ${GETURL} ${DESTDIR}
   fi
-
+  
+  # FETCH FROM LIST
   if [ -n "${GETFILE}" ]; then
     # If no destination directory is added default to the slackdoc dir
     if [ -z "${DESTDIR}" ]; then
@@ -38,6 +40,9 @@ RunFunctions() {
   fi
 
   #COPYFILE
+  if [ -n "${COPYFILE}" ]; then
+    CopyToClipboard "${COPYFILE}"
+  fi
 
   #USETEMPLATE
   #NEWFILE

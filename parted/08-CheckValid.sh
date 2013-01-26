@@ -37,7 +37,7 @@ CheckValid() {
 
 
   if [ ! -f ${COPYFILE} ]; then
-    PrintError"You cannot copy ${COPYFILE}, it does not exist."
+    PrintError "You cannot copy ${COPYFILE}, it does not exist."
     ISERROR=1
   fi
 
