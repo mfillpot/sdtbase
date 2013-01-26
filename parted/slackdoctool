@@ -1,0 +1,598 @@
+#!/bin/bash
+# Author: Matthew Fillpot
+# Created: 2012-12-28
+# License: BSD
+VERSION="0.1.0"
+#
+# Description
+# -------------------------------------------------------
+# Toolkit used to simplify offline editing of slackdocs
+#  wiki content for http://docs.slackware.com
+#
+
+
+#------ TODO List -------
+#   1. See if the script is causing terminal wrapping issues from font colors
+#   and fix them
+#   12. Add a page to the wiki with vim optimizations and refer to them in
+#   the script
+#   13. Clean up the script
+#   14. Add hooks for IsOnline where appropriate
+#   15. Make a function to write list of templates into an array using the
+#     read line function
+#   15. Change SetTemps to use the function to set templates
+#   16. Change RefreshTemplates to use the function to set templates
+
+# Define the path to the repo directory
+TMP_DIR="/tmp"
+
+# Define the variables
+EXTENSION="slackdoc"
+FILETYPE="slackdocs"
+SYNF_VIM="slackdocs.vim"
+SD_DIR="${HOME}/slackdocs"
+SYNTAX_DIR="${REPO_PATH}/syntax_files"
+TEMPLATE_DIR="${SD_DIR}/templates"
+TEMPLATE_IND=""
+DOC_TITLE=${DOC_TITLE:-"new"}
+
+# Currently pointing tomf_test, needs to be movedto master when stable
+GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/mfillpot"
+VERSION_URL="${GIT_URL}/versions.txt"
+SCRIPT_URL="${GIT_URL}/slackdoctool"
+SYNTAX_URL="${GIT_URL}/syntax_files"
+
+SD_URL="http://docs.slackware.com"
+TEMP_URL="${SD_URL}/wiki:user:mfillpot:template_list"
+TEMP_FILE="${SD_DIR}/templates.txt"
+
+# Set Output font colors
+BLDTXT=$(tput bold)
+NRMTXT=$(tput sgr0)
+ERRTXT=$(tput setaf 1)
+SCSTXT=$(tput setaf 2)
+
+#BLACK=$(tput setaf 0)
+#RED=$(tput setaf 1)
+#GREEN=$(tput setaf 2)
+#YELLOW=$(tput setaf 3)
+#LIME_YELLOW=$(tput setaf 190)
+#POWDER_BLUE=$(tput setaf 153)
+#BLUE=$(tput setaf 4)
+#MAGENTA=$(tput setaf 5)
+#CYAN=$(tput setaf 6)
+#WHITE=$(tput setaf 7)
+#BRIGHT=$(tput bold)
+#NORMAL=$(tput sgr0)
+#BLINK=$(tput blink)
+#REVERSE=$(tput smso)
+#UNDERLINE=$(tput smul)
+
+PrintText() {
+  # Used to output properly wrapping text with indentation and formatting.
+
+  # Arg1 = Indent Count
+  # Arg2 = Font Formatting
+  # Arg3 = Input Text
+  # Arg4 = 1 - newline, 0 - no newline
+
+  INDENT=${1}
+  FORMAT="${2}"
+  INPUTTEXT="${3}"
+
+  # Determine if a new line is wanted after the text
+  if [ "${4}" = "1" ]; then
+    NEWLINE="\n"
+  else
+    NEWLINE=""
+  fi
+
+  # Build strings as independent words and setting words to not wrap on new
+  # lines, but anticpiate new lines between words
+  NEWSTR="" 
+  for WORD in ${INPUTTEXT}
+  do
+    if [ "${NEWSTR}" = "" ]; then
+        NEWSTR="${WORD}"
+    else
+      TSTSTR="${NEWSTR}${WORD} "
+      if [ ${#TSTSTR} -lt $(($(tput cols)-${INDENT})) ]; then 
+        NEWSTR="${NEWSTR} ${WORD}"
+      else
+        printf "%*s" ${INDENT} ""
+        printf "${FORMAT}%s${NRMTXT}${NEWLINE}" "${NEWSTR}"
+        NEWSTR="${WORD}"
+      fi
+    fi
+  done
+
+  # Output the indent and string
+  printf "%*s" ${INDENT} ""
+  printf "${FORMAT}%s${NRMTXT}${NEWLINE}" "${NEWSTR}"
+}
+
+PrintError() {
+  # Arg1 = Text To Display
+
+  #Writes the string in the error color with a blank line following it
+
+  local ERROR_TEXT="${1}"
+
+  PrintText 2 "${ERRTXT}" "${ERROR_TEXT}" 1
+  PrintText 0 "" "" 1
+}
+
+HelpArg() {
+
+  OPT="${1}"
+  ARG="${2}"
+  DISTXT="${3}"
+
+  # Defines and utilizes standard indentation and formatting to display the help arguments
+
+  IND=8
+  HIND=$((${IND}-4))
+  SPC=2
+
+  PrintText ${HIND} "${BLDTXT}" "${OPT}  ${ARG}" 1
+  PrintText ${IND} "${NRMTXT}" "${DISTXT}" 1
+
+}
+
+IsRoot() {
+  # Check if the script is run as root
+  if [ "$(id -u)" = "0" ]; then
+     PrintError "Do not run the script as root."
+     exit 1
+  fi
+}
+
+DisplayHelp() {
+# Displays the help text
+
+  PrintText 4 "${SCSTXT}" "Slackware Documentation Project - Off-line Tools" 1
+  PrintText 4 "${BLDTXT}" "Version: ${VERSION}" 1
+  PrintText 0 "" "" 1
+  PrintText 6 "${BLDTXT}" "Slackdocs Website:" 1
+  PrintText 8 "${NRMTXT}" "http://docs.slackware.com" 1
+  PrintText 6 "${BLDTXT}" "Project URL:" 1
+  PrintText 8 "${NRMTXT}" "https://github.com/mfillpot/slackdoc_templates" 1
+  PrintText 0 "" "" 1
+
+  PrintText 0 "${BLDTXT}" "OPTIONS" 1
+  HelpArg "-h" "" "Display this dialog"
+  HelpArg "-S" "" "Fetch the syntax file(s)."
+  HelpArg "-s" "Application Name" "Apply the syntax highlighting file for the chosen application. Valid options are kate and vim."
+  HelpArg "-T" "" "Fetch all templates from the website"
+  HelpArg "-w" "URL" "Fetch an article from the slackdocs URL given. If the -d argument is not given it will save in the slackdocs directory."
+  HelpArg "-f" "File" "Fetch articles from the slackdocs wiki from the list contained within the specified file. If no -d option is given it will save the documents into the slackdocs directory."
+  HelpArg "-d" "Destination Directory" "Only valid with the -f and -w arguments. This specifies the destination directory which will contain the fetched file(s)."
+  HelpArg "-c" "Copy From File" "Copy the file's contents into the clipboard."
+  HelpArg "-n" "Template Number" "Create a new file based upon the specified template. The template list can be viewed with the -l option."
+  HelpArg "-o" "Output FileName" "Only used with the -n option. The argument will contain the name of the new output file."
+  HelpArg "-r" "" "Refresh the list of templates from the slackdocs wiki."
+  HelpArg "-l" "" "List all available templates."
+  HelpArg "-u" "" "Check for and download updates to this script."
+  HelpArg "-a" "" "Download all base and syntax files from the slackdocs wiki."
+}
+
+CheckArgs () {
+
+  if [ "${#}" = "0" ]; then
+    echo "no arg"
+    DisplayHelp
+    exit 1
+  fi
+
+while getopts ":ac:d:f:hln:o:rs:uw:ST" opt; do
+    case $opt in
+  h)
+    DisplayHelp
+    exit 0
+    ;;
+
+
+  S)
+    FETCHSYNTAX=1
+    ;;
+  s)
+    SYNAPP=${OPTARG}
+    ;;
+  T)
+    FETCHTEMPLATES=1
+    ;;
+
+
+  w)
+    GETURL=${OPTARG}
+    ;;
+  f)
+    GETFILE=${OPTARG}
+    ;;
+  d)
+    DESTDIR=${OPTARG}
+    ;;
+
+
+  c)
+    COPYFILE=${OPTARG}
+    ;;
+
+
+  n)
+    USETEMPLATE=${OPTARG}
+    ;;
+  o)
+    NEWFILE=${OPTARG}
+    ;;
+
+
+  r)
+    FETCHTEMPLATES=1
+    ;;
+  l)
+    LISTTEMPLATES=1
+    ;;
+
+
+  u)
+    GETUPDATE=1
+    ;;
+  a)
+    # Pull All, Prep Directory
+    FETCHSYNTAX=1
+    FETCHTEMPLATES=1
+    ;;
+  \?)
+    PrintError "Invalid option:-$OPTARG"
+    DisplayHelp
+    exit 1
+    ;;
+  :)
+    PrintError "Option -$OPTARG requires an argument."
+    DisplayHelp
+    exit 1
+    ;;
+  esac
+done
+}
+
+CheckValid() {
+  if [ -n "${SYNAPP}" ]; then # confirmed
+  #  PrepSyntax
+    case "${SYNAPP}" in 
+      vim)
+        echo "Nothing">/dev/null
+        ;;
+      kate)
+        echo "Nothing">/dev/null
+        ;;
+      *)
+        PrintError "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
+        ISERROR=1
+        ;;
+    esac
+  fi
+
+
+  # Verify that the URL entered is not a local file or directory
+  if [ -n "${GETURL}" ]&&[ -d ${GETURL} ]; then
+    PrintError "Directory ${GETURL} was input into -u. A Url Must be entered"
+    ISERROR=1
+  elif [ -n "${GETURL}" ]&&[ -f ${GETURL} ]; then
+    PrintError "File ${GETURL} was input into -u. A Url Must be entered"
+    ISERROR=1
+  fi
+
+  # Verify that the FILE entered is not a local directory
+  if [ -n "${GETFILE}" ]&&[ ! -f  ${GETFILE} ]; then
+    PrintError "File ${GETFILE} does not exist. Cannot continue."
+    ISERROR=1
+  fi
+
+  if [ -n "${DESTDIR}" ]&&[ -z "${GETFILE}" ]&&[ -z "${GETURL}" ]; then
+    PrintError "Output directories are only valid when fetching URLs or a list of URLs, the option is being ignored"
+  fi
+
+
+  if [ ! -f ${COPYFILE} ]; then
+    PrintError"You cannot copy ${COPYFILE}, it does not exist."
+    ISERROR=1
+  fi
+
+  if [ -n "${USETEMPLATE}" ]; then
+    if [ ! -f "${TEMP_FILE}" ]; then
+      PrintError "No template list available, use the -r option to pull the updated list of templates."
+      ISERROR=1
+    else
+      SetTemps
+      if [[ "${USETEMPLATE}" -gt "${#TEMPS[@]}" ]]; then
+        PrintError "No such template exists, use the -l option to list available templates."
+        ISERROR=1
+      fi
+    fi
+  fi
+
+
+  #NEWFILE
+  # Check for existance in the function, if exists then request to overwrite
+
+  if [ -n "${ISERROR}" ]; then
+    exit 1
+  fi
+}
+
+BuildStructure() 
+{
+  # Accepts no arguments, builds directory structure
+
+  if [ ! -d ${TEMPLATE_DIR} ]; then
+    PrintText 0 "${ERRTXT}" "The user directory at ${SD_DIR} \
+      does not exist" 1
+    read -p "Would you like to create it? (Y/N) :" yn
+    case ${yn} in
+      [Yy*]* )
+        mkdir -v ${SD_DIR}
+        if [ ! -d ${TEMPLATE_DIR} ]; then
+          mkdir -v ${TEMPLATE_DIR}
+        fi
+        ;;
+      * )
+        PrintError "Cannot resume without directory in place, Terminating."
+        exit 1
+        ;;
+    esac
+  fi
+}
+
+
+RefreshTemplates() {
+  # Refresh the list of available templates
+  
+  PrintText 2 "${BLDTXT}"  "Refreshing the list of available templates..." 1
+  lynx -dump ${TEMP_URL} | awk -F: '/templates:/ {print $NF}'>${TEMP_FILE}
+  
+  # Make the order of the templates more structured
+  sort ${TEMP_FILE} -o ${TEMP_FILE}
+
+  # Populates the TEMPS array with a list of available templates
+  SetTemps
+}
+
+SetTemps() {
+  # Sets an array with the contents of the template index 
+  TEMPS=()
+  while read line; do
+    TEMPS+=("${line}")
+  done < ${TEMP_FILE}
+}
+
+# 
+
+AvailableTemplates() {
+  # Displays a list of available templates and usage
+  # Make sure the template file exists and the TEMPS array is set
+  if [ ! -f "${TEMP_FILE}" ]; then
+    RefreshTemplates
+  else
+    SetTemps
+  fi
+
+  PrintText 0 "${BLDTXT}" "The following templates are available:" 1
+  
+  # Loop over the TEMPS array to display available templates 
+  for i in ${!TEMPS[*]}
+  do
+    printf "%4d: %s\n" $i ${TEMPS[$i]}
+  done
+  printf "\n"
+}
+
+PullTemplates() {
+  # Pulls the listed template files into the templates directory
+
+  # Checks if the templte directory exists
+  if [ ! -f "${TEMP_FILE}" ]; then
+    RefreshTemplates
+  else
+    SetTemps
+  fi
+
+  # Pulls the templates listed in the TEMPS array.
+  for TEMPLATE in "${TEMPS[@]}"
+  do
+    PullPage "templates:${TEMPLATE}" "${TEMPLATE_DIR}"
+  done
+  PrintText 2 "${SCSTXT}" "All templates have been successfully retrieved." 1
+}
+
+PullPage() {
+  # Pulls the single page from $1 into the location at $2
+
+  local EXTRACTLINE="?do=export_raw"
+
+  # Page holds the name of the requested page
+  local PAGE=${1}
+
+  # If destination does not include ending slash add it
+  if [[ ${2} == *"/" ]]; then
+    local DESTDIR="${2}"
+  else
+    local DESTDIR="${2}/"
+  fi
+  
+
+  if [ ! -d ${DESTDIR} ]; then
+    PrintText 2 "${ERRTXT}" "The ${DESTDIR} directory does not exist,
+terminating action" 1
+    exit 1
+  fi
+
+  # if requested page includs base url remove it so output page can be 
+  #  determined
+  if [[ "${PAGE}" == *"${SD_URL}"* ]]; then
+    local PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
+  fi
+
+  # Set output file name
+  if [ "${2}" = "${TEMPLATE_DIR}" ]; then
+    local OF="$(echo "${PAGE}"|sed 's/:/-/g'|sed 's/templates-//g').${EXTENSION}"
+  else
+    local OF="$(echo "${PAGE}"|sed 's/:/-/g').${EXTENSION}"
+  fi
+
+  # If output file exists remove it
+  if [ -e ${DESTDIR}${OF} ]; then
+    rm ${DESTDIR}${OF}
+  fi
+
+  # Append the base url to the page address
+  local PAGE=${SD_URL}/${PAGE}
+
+  if [ -e ${DESTDIR}${OF} ]; then
+    printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESTDIR}${OF} exists"
+    read -p "Would you like to overwrite it? " yn
+    case ${yn} in
+    [Yy]* )
+
+      rm ${DESTDIR}${OF}
+
+      FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
+      ;;
+    * )
+      printf ""
+      ;;
+    esac
+  else
+    FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
+  fi
+}
+
+FinishPull() {
+  # retrieve the page
+  #
+  # Arg1 = URL
+  # Arg2 = Descriptive Name
+  # Arg3 = Output File Name
+  
+  F_STATUS=""
+  local URL=${1}
+  local DESCRIPT=${2}
+  local OUTFILE=${3}
+  
+  local FAILTEXT="epub_LoadScript"
+
+  wget ${URL} --output-document=${OUTFILE}
+
+  # Test for a valid pull and display associated message
+  if [ -n "$(cat ${OUTFILE}|grep ${FAILTEXT})" ]; then
+    rm ${OUTFILE}
+    PrintText 2 "${ERRTXT}" "${DESCRIPT} does not exist" 1
+  unset F_STATUS
+  else
+    PrintText 2 "${SCSTXT}" "${OUTFILE} is ready to edit" 1
+  F_STATUS=0
+  fi
+}
+
+PullFromList() {
+  # This function is intended to allow a user to specificy a text file
+  #  list of pages to retreive and pull them into the desired directory
+  #
+  # Arg1 = List File
+  # Arg2 = Destination Dir
+
+  local LISTFILE=${1}
+  local DESTDIR=${2}
+  FETCHED=()
+  FAILED=()
+  
+  while read PAG
+  do
+    PullPage "${PAG}" "${DESTDIR}" 
+    [ -z "${F_STATUS}" ] && FAILED+=("${PAG}") || FETCHED+=("${PAG}")
+  done < ${LISTFILE}
+  echo
+  echo "Fetched ${#FETCHED[@]} document(s): ${FETCHED[@]}"
+  echo "Failed to fetch ${#FAILED[@]} document(s): ${FAILED[@]}"
+  echo
+}
+
+GetSyntaxExample () {
+      PullPage "wiki:syntax" ${SD_DIR}
+      PrintText 0 "" "" 1
+      PrintText 0 "${NRMTXT}" "The example syntax file is now located at
+${SD_DIR}/wiki-syntax.${EXTENSION}" 1
+}
+
+RunFunctions() {
+  if [ -n "${FETCHSYNTAX}" ]; then # confirmed
+    GetSyntaxExample
+    #echo "Fetch Syntax"
+  fi
+
+  if [ -n "${SYNAPP}" ]; then # confirmed
+  #  PrepSyntax
+    echo "Set Syntax for ${SYNAPP}"
+  fi
+
+  #REFRESHTEMPLATES
+  if [ "${FETCHTEMPLATES}" = "1" ]; then
+    PullTemplates
+  fi
+
+  #LISTTEMPLATES
+  if [ "${LISTTEMPLATES}" = "1" ]; then
+    AvailableTemplates
+  fi
+
+  if [ -n "${GETURL}" ]; then
+    # If no destination directory is added default to the slackdoc dir
+    if [ -z "${DESTDIR}" ]; then
+      DESTDIR=${SD_DIR}
+    fi
+    #  PullPage
+    PullPage ${GETURL} ${DESTDIR}
+  fi
+
+  if [ -n "${GETFILE}" ]; then
+    # If no destination directory is added default to the slackdoc dir
+    if [ -z "${DESTDIR}" ]; then
+      DESTDIR=${SD_DIR}
+    fi
+    #  PullFromList
+    PullFromList ${GETFILE} ${DESTDIR}
+  fi
+
+  #COPYFILE
+
+  #USETEMPLATE
+  #NEWFILE
+
+  if [ -n "${GETUPDATE}" ]; then
+  #  CheckUpdate
+    echo "Check for an update"
+  fi
+}
+
+#DisplayHelp
+#exit 1
+
+# Check if run as root, if root then exit
+IsRoot
+
+# Test all Arguments
+CheckArgs "$@"
+
+# Verify that no invalid arguments are given
+CheckValid
+
+#exit 0
+
+# If no errors, then check run the functions
+BuildStructure
+RunFunctions
+
+# If it succeeds until now it processed successfully
+exit 0
+

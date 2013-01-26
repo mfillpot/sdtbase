@@ -50,7 +50,7 @@ while getopts ":ac:d:f:hln:o:rs:uw:ST" opt; do
 
 
   r)
-    REFRESHTEMPLATES=1
+    FETCHTEMPLATES=1
     ;;
   l)
     LISTTEMPLATES=1
