@@ -1,7 +1,7 @@
 # Author: Matthew Fillpot
 # Created: 2012-12-28
 # License: BSD
-VERSION="0.1.0"
+VERSION="0.1.1"
 #
 # Description
 # -------------------------------------------------------
