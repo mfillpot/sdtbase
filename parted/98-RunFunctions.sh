@@ -50,7 +50,6 @@ RunFunctions() {
   #NEWFILE
 
   if [ -n "${GETUPDATE}" ]; then
-  #  CheckUpdate
-    echo "Check for an update"
+    CheckUpdate
   fi
 }
