@@ -2,7 +2,7 @@
 
 CWD=`pwd`
 ORG=${CWD}/org.lst
-OF=${CWD}/slackdoctool
+OF=${CWD}/../slackdoctool
 
 echo "#!/bin/bash">${OF}
 
