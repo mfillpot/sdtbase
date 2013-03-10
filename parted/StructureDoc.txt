@@ -1,0 +1,12 @@
+Range     Description
+--------- ------------------------
+00-09     Heading and Procedural
+10-19     Text Handling
+20-29     Template Handling
+30-39     Dokuwiki Page Retreival
+40-49     Document creation and Export
+50-59     Undefined
+60-69     Syntax Highlighting Functions
+70-79     Undefined
+80-89     Standard Ouput Messages
+90-99     Validation and Termination
