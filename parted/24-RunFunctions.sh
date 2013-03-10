@@ -1,12 +1,10 @@
 RunFunctions() {
   if [ -n "${FETCHSYNTAX}" ]; then # confirmed
     GetSyntaxExample
-    #echo "Fetch Syntax"
   fi
 
   if [ -n "${SYNAPP}" ]; then # confirmed
-  #  PrepSyntax
-    echo "Set Syntax for ${SYNAPP}"
+    PrepSyntax
   fi
 
   #REFRESHTEMPLATES

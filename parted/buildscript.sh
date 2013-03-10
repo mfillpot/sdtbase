@@ -16,4 +16,4 @@ done < ${ORG}
 
 rm ${ORG}
 
-#chmod +x ${OF}
+chmod +x ${OF}

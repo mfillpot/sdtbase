@@ -3,10 +3,10 @@ CheckValid() {
   #  PrepSyntax
     case "${SYNAPP}" in 
       vim)
-        echo "Nothing">/dev/null
+        SynApp=vim
         ;;
       kate)
-        echo "Nothing">/dev/null
+        SynApp=kate
         ;;
       *)
         PrintError "Cannot set syntax info for ${SYNAPP}, please contact the authors of slackdoctool if you want it included."
