@@ -1,8 +1,7 @@
 CheckUpdate() {
 # Checks githhub for a new version of the file and downloads it
 
-  NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f
-2)
+  NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
   printf "\n${BLDTXT}%s${NRMTXT}\n" \
     "Checking for an updated script."
   if [ "${NEW_VERSION}" = "${VERSION}" ]; then

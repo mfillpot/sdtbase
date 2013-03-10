@@ -2,7 +2,7 @@
 # Author: Matthew Fillpot
 # Created: 2012-12-28
 # License: BSD
-VERSION="0.1.0"
+VERSION="0.1.1"
 #
 # Description
 # -------------------------------------------------------
@@ -79,8 +79,7 @@ IsRoot() {
 CheckUpdate() {
 # Checks githhub for a new version of the file and downloads it
 
-  NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f
-2)
+  NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
   printf "\n${BLDTXT}%s${NRMTXT}\n" \
     "Checking for an updated script."
   if [ "${NEW_VERSION}" = "${VERSION}" ]; then
