@@ -57,6 +57,8 @@ MakeScript() {
 UpdateVersionNos() {
   echo "${APPNAME}=${APPVERSION}">${VERSFILE}
   echo "slackdocs.vim=$(cat ${CWD}/syntax_files/slackdocs.vim| grep "Version:"|tr -s " "|cut -d " " -f 3)">>${VERSFILE}
+
+  cp ${VERSFILE} ${SDCREPO}/
 }
 
 MakeHelpDisplay() {
