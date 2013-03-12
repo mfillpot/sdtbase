@@ -1,0 +1,1 @@
+slackdoctool -a||Fetches all possible files and builds the local directory structure.

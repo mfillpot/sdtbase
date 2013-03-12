@@ -1,14 +1,14 @@
-h||Display this dialog
-S||Fetch the syntax file(s).
-s|string|Apply the syntax highlighting file for the chosen application.%#Valid options are kate and vim.
-T||Fetch all templates from the website
-w|sring|Fetch an article from the slackdocs URL given.%#If the -d argument is not given it will save in the slackdocs directory.
-f|file|Fetch articles from the slackdocs wiki from the list contained within the specified file.%#If no -d option is given it will save the documents into the slackdocs directory.
-d|string|%#Only valid with the -f and -w arguments.%This specifies the destination directory which will contain the fetched file(s).
-c|string|Copy the selected file's contents into the clipboard.
-n|number|Create a new file based upon the specified template. The template list can be viewed with the -l option.
-o|string|Only used with the %#-n% option. The argument will contain the name of the new output file.
-r||Refresh the list of templates from the slackdocs wiki.
-l||List all available templates.
-u||Check for and download updates to this script.
-a||Download all base and syntax files from the slackdocs wiki.
+-h||Display this dialog
+-S||Fetch the syntax file(s).
+-s|string|Apply the syntax highlighting file for the chosen application.%#Valid options are kate and vim.
+-T||Fetch all templates from the website
+-w|sring|Fetch an article from the slackdocs URL given.%#If the -d argument is not given it will save in the slackdocs directory.
+-f|file|Fetch articles from the slackdocs wiki from the list contained within the specified file.%#If no -d option is given it will save the documents into the slackdocs directory.
+-d|string|#Only valid with the -f and -w arguments.%This specifies the destination directory which will contain the fetched file(s).
+-c|string|Copy the selected file's contents into the clipboard.
+-n|number|Create a new file based upon the specified template. The template list can be viewed with the -l option.
+-o|string|Only used with the %#-n%option. The argument will contain the name of the new output file.
+-r||Refresh the list of templates from the slackdocs wiki.
+-l||List all available templates.
+-u||Check for and download updates to this script.
+-a||Download all base and syntax files from the slackdocs wiki.
