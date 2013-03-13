@@ -28,8 +28,6 @@ FILETYPE="slackdocs"
 SYNF_VIM="slackdocs.vim"
 SD_DIR="${HOME}/slackdocs"
 TEMPLATE_DIR="${SD_DIR}/templates"
-#TEMPLATE_IND=""
-#DOC_TITLE=${DOC_TITLE:-"new"}
 
 # Currently pointing tomf_test, needs to be movedto master when stable
 GIT_URL="https://raw.github.com/mfillpot/slackdoctool"
