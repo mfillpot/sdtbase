@@ -22,9 +22,6 @@ VERSION="0.1.1"
 #   15. Change SetTemps to use the function to set templates
 #   16. Change RefreshTemplates to use the function to set templates
 
-# Define the path to the repo directory
-TMP_DIR="/tmp"
-
 # Define the variables
 EXTENSION="slackdoc"
 FILETYPE="slackdocs"
