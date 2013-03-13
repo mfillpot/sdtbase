@@ -5,5 +5,3 @@ SetTemps() {
     TEMPS+=("${line}")
   done < ${TEMP_FILE}
 }
-
-# 

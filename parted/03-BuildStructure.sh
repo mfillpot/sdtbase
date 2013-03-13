@@ -20,4 +20,3 @@ BuildStructure()
     esac
   fi
 }
-
