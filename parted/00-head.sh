@@ -9,19 +9,6 @@ VERSION="0.1.1"
 #  wiki content for http://docs.slackware.com
 #
 
-
-#------ TODO List -------
-#   1. See if the script is causing terminal wrapping issues from font colors
-#   and fix them
-#   12. Add a page to the wiki with vim optimizations and refer to them in
-#   the script
-#   13. Clean up the script
-#   14. Add hooks for IsOnline where appropriate
-#   15. Make a function to write list of templates into an array using the
-#     read line function
-#   15. Change SetTemps to use the function to set templates
-#   16. Change RefreshTemplates to use the function to set templates
-
 # Define the variables
 EXTENSION="slackdoc"
 FILETYPE="slackdocs"

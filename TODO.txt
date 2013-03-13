@@ -1,0 +1,14 @@
+------ TODO List -------
+See if the script is causing terminal wrapping issues from font colors and fix them
+
+Add a page to the wiki with vim optimizations and refer to them in the script
+
+Clean up the script
+
+Add hooks for IsOnline where appropriate
+
+Make a function to write list of templates into an array using the read line function
+
+Change SetTemps to use the function to set templates
+
+Change RefreshTemplates to use the function to set templates
