@@ -1,0 +1,9 @@
+The args file is a pipe (|) delimimited list of options that will be applied
+to the script help output and the manual page.
+
+The Fields are:
+Option|Input type|Description
+
+Special Keys:
+# = Bold output for line in manual
+% = New Line
