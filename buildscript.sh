@@ -59,6 +59,9 @@ UpdateVersionNos() {
   echo "slackdocs.vim=$(cat ${CWD}/syntax_files/slackdocs.vim| grep "Version:"|tr -s " "|cut -d " " -f 3)">>${VERSFILE}
 
   cp ${VERSFILE} ${SDCREPO}/
+
+  # Copy the TODO file to the output repo
+  cp ${CWD}/TODO.txt ${SDCREPO}/
 }
 
 MakeHelpDisplay() {
