@@ -36,10 +36,11 @@ TEMPLATE_DIR="${SD_DIR}/templates"
 #DOC_TITLE=${DOC_TITLE:-"new"}
 
 # Currently pointing tomf_test, needs to be movedto master when stable
-GIT_URL="https://raw.github.com/mfillpot/slackdoc_templates/mfillpot"
+GIT_URL="https://raw.github.com/mfillpot/slackdoctool"
 VERSION_URL="${GIT_URL}/versions.txt"
 SCRIPT_URL="${GIT_URL}/slackdoctool"
-SYNTAX_URL="${GIT_URL}/syntax_files"
+SOURCE_URL="https://raw.github.com/mfillpot/sdtbase"
+SYNTAX_URL="${SOURCE_URL}/syntax_files"
 
 SD_URL="http://docs.slackware.com"
 TEMP_URL="${SD_URL}/wiki:user:mfillpot:template_list"
