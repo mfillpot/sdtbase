@@ -13,7 +13,7 @@ SDCREPO=${SDCREPO:-${CWD}/../slackdoctool}
 BINDIR=${SDCREPO}
 OF=${BINDIR}/${APPNAME}
 
-MANDIR=${SDCREPO}/man
+MANDIR=${SDCREPO}/man/man1
 MANINDIR=${CWD}/man_parts
 
 HELPSCR=${PARTDIR}/80-PrintHelp.sh
@@ -94,7 +94,7 @@ MakeHelpDisplay() {
 }
 
 BuildManPages() {
-  MANFILE=${MANDIR}/${APPNAME}
+  MANFILE=${MANDIR}/${APPNAME}.1
   mkdir -p ${MANDIR}
 
   echo '." Manpage for '${APPNAME}'.'>${MANFILE}
