@@ -1,1 +1,2 @@
-slackdoctool -a|Fetches all possible files and builds the local directory structure.
+slackdoctool -w "howtos:software" -d /home/user/wiki|This command will fetch the dokuwiki page from http://docs.slackware.com/howtos:software and save it the /home/user/wiki directory.
+slackdoctool -f doclist.txt -d /home/user/wiki|This command will fetch the dokuwiki page listed in the doclist.txt file and save them into the /home/user/wiki directory.
