@@ -148,7 +148,7 @@ BuildManPages() {
     echo '.SH EXAMPLES'>>${MANFILE}
     #echo `cat ${MANINDIR}/EXAMPLES.txt`>>${MANFILE}
     #Mp_Write "${MANINDIR}/EXAMPLES.txt" "${MANFILE}" "0"
-    Mp_Write "${PARTFILE}" "${MANFILE}" "0"
+    Mp_Write "${PARTFILE}" "${MANFILE}" "2"
   fi
   
   PARTFILE=${MANINDIR}/SEE_ALSO.txt
@@ -203,6 +203,14 @@ Mp_Write() {
       echo '.TP 10'>>${OUTPUTFILE}
       echo '.BI \'${ARG1}' "\| '${ARG2}'\^"'>>${OUTPUTFILE}
       echo -e "${ARG3}">>${OUTPUTFILE}
+    elif [ "${ISARGS}" = "2" ]; then
+      CONV=${LINE}
+      ARG1=$(echo ''${CONV}''|cut -d "|" -f 1|sed 's/-/\\-/g'|sed 's/ /\\ /g')
+      ARG2=$(echo ''${CONV}''|cut -d "|" -f 2)
+      #echo '.B -'${ARG1}''>>${OUTPUTFILE}
+      echo '.TP 4'>>${OUTPUTFILE}
+      echo '.BI '${ARG1}>>${OUTPUTFILE}
+      echo -e "${ARG2}">>${OUTPUTFILE}
     fi
   done < ${INPUTFILE}
 }
