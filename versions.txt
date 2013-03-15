@@ -1,2 +1,2 @@
-slackdoctool=0.1.1
+slackdoctool=0.1.2
 slackdocs.vim=0.0.2
