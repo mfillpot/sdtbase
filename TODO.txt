@@ -4,3 +4,5 @@ Clean up the script
 Add hooks for IsOnline where appropriate
 
 Add functions to create and read a .slackdoc.conf file that can store the user's chosen directory as the slackdoc home directory
+
+Correct the WriteText function to display faster without the scrolling effect
