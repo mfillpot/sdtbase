@@ -16,7 +16,7 @@ FinishPull() {
 
   # Test for a valid pull and display associated message
   if [ -n "$(cat ${OUTFILE}|grep ${FAILTEXT})" ]; then
-    rm ${OUTFILE}
+    RemoveFile ${OUTFILE} 1
     PrintText 2 "${ERRTXT}" "${DESCRIPT} does not exist" 1
   unset F_STATUS
   else

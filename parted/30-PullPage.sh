@@ -35,7 +35,7 @@ terminating action" 1
 
   # If output file exists remove it
   if [ -e ${DESTDIR}${OF} ]; then
-    rm ${DESTDIR}${OF}
+    RemoveFile ${DESTDIR}${OF} 1
   fi
 
   # Append the base url to the page address
@@ -47,7 +47,7 @@ terminating action" 1
     case ${yn} in
     [Yy]* )
 
-      rm ${DESTDIR}${OF}
+      RemoveFile ${DESTDIR}${OF} 1
 
       FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
       ;;
