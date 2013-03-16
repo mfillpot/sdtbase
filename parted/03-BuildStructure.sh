@@ -8,7 +8,11 @@ BuildStructure()
     read -p "Would you like to create it? (Y/N) :" yn
     case ${yn} in
       [Yy*]* )
-        mkdir -v ${SD_DIR}
+        mkdir -pv ${SD_DIR}
+        if [ ! "$?" = "0" ]; then
+          printerror "Could not make ${SD_DIR}, check the permissions of the parent firectory"
+          exit 1
+        fi
         if [ ! -d ${TEMPLATE_DIR} ]; then
           mkdir -v ${TEMPLATE_DIR}
         fi
