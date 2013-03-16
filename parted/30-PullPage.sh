@@ -13,14 +13,14 @@ PullPage() {
     local DESTDIR="${2}/"
   fi
   
-
+  # If the destination directory does not exist exit with an error
   if [ ! -d ${DESTDIR} ]; then
     PrintText 2 "${ERRTXT}" "The ${DESTDIR} directory does not exist,
 terminating action" 1
     exit 1
   fi
 
-  # if requested page includs base url remove it so output page can be 
+  # if requested page includes base url remove it so output page can be 
   #  determined
   if [[ "${PAGE}" == *"${SD_URL}"* ]]; then
     local PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"

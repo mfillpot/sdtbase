@@ -19,6 +19,8 @@ PrintText() {
 
   # Build strings as independent words and setting words to not wrap on new
   # lines, but anticpiate new lines between words
+  #
+  # The command tput cols is fetching the colum count for the open terminal
   NEWSTR="" 
   for WORD in ${INPUTTEXT}
   do

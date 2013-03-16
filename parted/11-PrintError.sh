@@ -5,6 +5,9 @@ PrintError() {
 
   local ERROR_TEXT="${1}"
 
+  # Peint the error message
   PrintText 2 "${ERRTXT}" "${ERROR_TEXT}" 1
+
+  # Peint a new line
   PrintText 0 "" "" 1
 }

@@ -1,5 +1,5 @@
 SetTemps() {
-  # Sets an array with the contents of the template index 
+  # Sets an array with the contents of the template index file
   TEMPS=()
   while read line; do
     TEMPS+=("${line}")

@@ -1,7 +1,9 @@
 AvailableTemplates() {
   # Displays a list of available templates and usage
+
   # Make sure the template file exists and the TEMPS array is set
   if [ ! -f "${TEMP_FILE}" ]; then
+    # The RefreshTemplates function included SetTemps
     RefreshTemplates
   else
     SetTemps
