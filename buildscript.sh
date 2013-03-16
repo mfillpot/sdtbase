@@ -39,6 +39,7 @@ MakeScript() {
   # Loop through inclusion list and concatinate them
   while read LINE
   do
+    echo "# Script: $(basename ${LINE})">>${OF}
     cat ${LINE}>>${OF}
     echo "">>${OF}
   done < ${ORG}
