@@ -19,7 +19,7 @@ BuildStructure()
         MakeDir ${SD_DIR}
 
         if [ ! -d ${TEMPLATE_DIR} ]; then
-          MakDir ${TEMPLATE_DIR}
+          MakeDir ${TEMPLATE_DIR}
         fi
         ;;
       * )
