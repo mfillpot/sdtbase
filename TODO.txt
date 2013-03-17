@@ -8,6 +8,8 @@ In function 32 Replace the screen echos with WriteText
 
 Set variables as local whenever possible
 
+Remove all occurances of the printf ouput except for in the WriteText function
+
 IMPROVEMENTS
 --------------------------------------------
 Add hooks for IsOnline where appropriate
