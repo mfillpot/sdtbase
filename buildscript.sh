@@ -36,7 +36,7 @@ MakeScript() {
   fi
 
   # Write the new version number to the script
-  sed -i 's/^VERSION.*/VERSION='$(git tag -l|sort|tail -n 1)'/g' ${PARTDIR}/00-head.sh
+  sed -i 's/^VERSION=.*/VERSION='$(git tag -l|sort|tail -n 1)'/g' ${PARTDIR}/00-head.sh
 
   # Loop through inclusion list and concatinate them
   while read LINE
