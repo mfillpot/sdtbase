@@ -19,10 +19,10 @@ SD_DIR="${HOME}/slackdocs"
 TEMPLATE_DIR="${SD_DIR}/templates"
 
 # Currently pointing tomf_test, needs to be movedto master when stable
-GIT_URL="https://raw.github.com/mfillpot/slackdoctool"
-VERSION=0.1.2
+GIT_URL="https://raw.github.com/mfillpot/slackdoctool/master"
+VERSION_URL="${GIT_URL}/versions.txt"
 SCRIPT_URL="${GIT_URL}/slackdoctool"
-SOURCE_URL="https://raw.github.com/mfillpot/sdtbase"
+SOURCE_URL="https://raw.github.com/mfillpot/sdtbase/master"
 SYNTAX_URL="${SOURCE_URL}/syntax_files"
 
 SD_URL="http://docs.slackware.com"
