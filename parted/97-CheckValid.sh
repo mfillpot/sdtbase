@@ -1,5 +1,9 @@
 CheckValid() {
-  if [ -n "${SYNAPP}" ]; then # confirmed
+  # This function tests all possible arguments for errors and reports or
+  # terminates as necessary
+
+  # If syntax highlight is requested test arguments
+  if [ -n "${SYNAPP}" ]; then
   #  PrepSyntax
     case "${SYNAPP}" in 
       vim)
@@ -31,6 +35,7 @@ CheckValid() {
     ISERROR=1
   fi
 
+  # Verify when an output directory is entered that it was with valid options
   if [ -n "${DESTDIR}" ]&&[ -z "${GETFILE}" ]&&[ -z "${GETURL}" ]; then
     PrintError "Output directories are only valid when fetching URLs or a list of URLs, the option is being ignored"
   fi
@@ -55,14 +60,8 @@ CheckValid() {
       fi
     fi
   fi
-  
-  #
-  
-
-
-  #NEWFILE
-  # Check for existance in the function, if exists then request to overwrite
-
+ 
+  # If one of more errors are reports exit with a status 1 
   if [ -n "${ISERROR}" ]; then
     exit 1
   fi

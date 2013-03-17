@@ -9,13 +9,15 @@ CopyToClipboard()
   local CONFS=${2}
 
 
+  # Test to see if xclip is installed, if false display error and exit
   ls /var/log/packages | grep "\<xclip\>" > /dev/null
   if [ ! $? -eq 0 ]; then
     printf "\n${ERRTXT}%s${NRMTXT}\n" \
       "xclip is not installed, the contents will need to be manually copied."
-    return 1
+    exit 1
   fi
 
+  # If file exists Start copy process
   if [ -f ${FILENAME} ]
   then
     if [ "${CONFS}" = "1" ]

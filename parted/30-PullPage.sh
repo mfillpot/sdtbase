@@ -41,6 +41,7 @@ terminating action" 1
   # Append the base url to the page address
   local PAGE=${SD_URL}/${PAGE}
 
+  # If output file arleady exists prompt user to overwrite it
   if [ -e ${DESTDIR}${OF} ]; then
     printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESTDIR}${OF} exists"
     read -p "Would you like to overwrite it? " yn

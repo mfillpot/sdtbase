@@ -1,24 +1,22 @@
 RunFunctions() {
-  if [ -n "${FETCHSYNTAX}" ]; then # confirmed
+  if [ -n "${FETCHSYNTAX}" ]; then 
     GetSyntaxExample
   fi
 
-  if [ -n "${SYNAPP}" ]; then # confirmed
+  if [ -n "${SYNAPP}" ]; then 
     PrepSyntax
   fi
 
-  #REFRESHTEMPLATES
-  if [ "${FETCHTEMPLATES}" = "1" ]; then # confirmed
+  if [ "${FETCHTEMPLATES}" = "1" ]; then 
     PullTemplates
   fi
 
-  #LISTTEMPLATES
-  if [ "${LISTTEMPLATES}" = "1" ]; then # confirmed
+  if [ "${LISTTEMPLATES}" = "1" ]; then 
     AvailableTemplates
   fi
 
   # FETCH FROM URL
-  if [ -n "${GETURL}" ]; then # confirmed
+  if [ -n "${GETURL}" ]; then 
     # If no destination directory is added default to the slackdoc dir
     if [ -z "${DESTDIR}" ]; then
       DESTDIR=${SD_DIR}
@@ -28,7 +26,7 @@ RunFunctions() {
   fi
   
   # FETCH FROM LIST
-  if [ -n "${GETFILE}" ]; then # confirmed
+  if [ -n "${GETFILE}" ]; then 
     # If no destination directory is added default to the slackdoc dir
     if [ -z "${DESTDIR}" ]; then
       DESTDIR=${SD_DIR}
@@ -37,17 +35,13 @@ RunFunctions() {
     PullFromList ${GETFILE} ${DESTDIR}
   fi
 
-  #COPYFILE
-  if [ -n "${COPYFILE}" ]; then # confirmed
+  if [ -n "${COPYFILE}" ]; then 
     CopyToClipboard "${COPYFILE}"
   fi
 
-  #USETEMPLATE
   if [ -n "${USETEMPLATE}" ]&&[ -n "${NEWFILE}" ]; then
     CreateNew "${USETEMPLATE}" "${NEWFILE}"
   fi
-
-  #NEWFILE
 
   if [ -n "${GETUPDATE}" ]; then
     CheckUpdate
