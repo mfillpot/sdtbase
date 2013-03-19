@@ -31,12 +31,6 @@ MakeScript() {
 
   echo "#!/bin/bash">${OF}
 
-  # IF the destination dir does not exist, make it
-  if [ ! -d ${BINDIR} ]; then
-    mkdir -p ${BINDIR}
-  fi
-
-  # Loop through inclusion list and concatinate them
   while read LINE
   do
     echo "# Script: $(basename ${LINE})">>${OF}
@@ -59,6 +53,12 @@ UpdateVersionNos() {
   echo "${APPNAME}=${APPVERSION}">${VERSFILE}
   echo "slackdocs.vim=$(cat ${CWD}/syntax_files/slackdocs.vim| grep "Version:"|tr -s " "|cut -d " " -f 3)">>${VERSFILE}
 
+  # IF the destination dir does not exist, make it
+  if [ ! -d ${BINDIR} ]; then
+    mkdir -p ${BINDIR}
+  fi
+
+  # Loop through inclusion list and concatenate them
   cp ${VERSFILE} ${SDCREPO}/
 
   # Copy the TODO file to the output repo
@@ -215,7 +215,6 @@ Mp_Write() {
     fi
   done < ${INPUTFILE}
 }
-
 
 
 UpdateVersionNos
