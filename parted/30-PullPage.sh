@@ -23,7 +23,7 @@ terminating action" 1
   # if requested page includes base url remove it so output page can be 
   #  determined
   if [[ "${PAGE}" == *"${SD_URL}"* ]]; then
-    local PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
+    PAGE="$(echo "${PAGE}"|cut -d "/" -f 4)"
   fi
 
   # Set output file name
@@ -39,8 +39,9 @@ terminating action" 1
   fi
 
   # Append the base url to the page address
-  local PAGE=${SD_URL}/${PAGE}
+  PAGE=${SD_URL}/${PAGE}
 
+  # If output file arleady exists prompt user to overwrite it
   if [ -e ${DESTDIR}${OF} ]; then
     printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESTDIR}${OF} exists"
     read -p "Would you like to overwrite it? " yn

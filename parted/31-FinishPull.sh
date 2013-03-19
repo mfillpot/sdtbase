@@ -12,6 +12,7 @@ FinishPull() {
   
   local FAILTEXT="epub_LoadScript"
 
+  # Fetch the desired file
   wget ${URL} --output-document=${OUTFILE}
 
   # Test for a valid pull and display associated message

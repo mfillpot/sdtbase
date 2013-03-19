@@ -1,8 +1,31 @@
 ------ TODO List -------
+
+MAINTENANCE
+--------------------------------------------
 Clean up the script
 
+In function 32 Replace the screen echos with WriteText
+
+Set variables as local whenever possible
+
+Remove all occurances of the printf ouput except for in the WriteText function
+
+IMPROVEMENTS
+--------------------------------------------
 Add hooks for IsOnline where appropriate
 
 Add functions to create and read a .slackdoc.conf file that can store the user's chosen directory as the slackdoc home directory
 
 Correct the WriteText function to display faster without the scrolling effect
+
+in function 32 set the script to only display success or failures if count on array ${#array[@]} is not zero
+
+in function 40 add a new function to provide error handling for the cp command
+
+Check all functions to make sure that the files/directories both exist and are accessiblee
+
+in function 41 set error handling for the xclip command
+
+BUGS
+--------------------------------------------
+

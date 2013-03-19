@@ -20,8 +20,7 @@ HELPSCR=${PARTDIR}/80-PrintHelp.sh
 
 CONTACTEMAIL="mfilpot@gmail.com"
 
-
-APPVERSION="$(cat ${PARTDIR}/00*.sh |grep "VERSION="|cut -d "\"" -f 2)"
+APPVERSION="$(git tag -l|sort|tail -n 1)"
 DT="$(date +"%d %b %Y")"
 
 MakeScript() {
@@ -31,6 +30,15 @@ MakeScript() {
 
   echo "#!/bin/bash">${OF}
 
+  # Write the new version number to the script
+  sed -i 's/^VERSION=.*/VERSION='$(git tag -l|sort|tail -n 1)'/g' ${PARTDIR}/00-head.sh
+
+  # IF the destination dir does not exist, make it
+  if [ ! -d ${BINDIR} ]; then
+    mkdir -p ${BINDIR}
+  fi
+
+  # Loop through inclusion list and concatinate them
   while read LINE
   do
     echo "# Script: $(basename ${LINE})">>${OF}

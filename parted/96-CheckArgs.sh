@@ -1,11 +1,12 @@
 CheckArgs () {
 
+  # If no arguments are displayed then display the help output
   if [ "${#}" = "0" ]; then
-    echo "no arg"
     DisplayHelp
     exit 1
   fi
 
+  # Test the arguments
 while getopts ":ac:d:f:hln:o:rs:uw:ST" opt; do
     case $opt in
   h)

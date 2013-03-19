@@ -7,7 +7,7 @@ CheckUpdate() {
     "Checking for an updated script."
 
   # get the new version number from the repo
-  NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
+  local NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
 
   # Test to see if an update is available, display a message indicatin the
   # status
