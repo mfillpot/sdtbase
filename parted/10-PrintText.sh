@@ -6,28 +6,28 @@ PrintText() {
   # Arg3 = Input Text
   # Arg4 = 1 - newline, 0 - no newline
 
-  INDENT=${1}
-  FORMAT="${2}"
-  INPUTTEXT="${3}"
+  local INDENT=${1}
+  local FORMAT="${2}"
+  local INPUTTEXT="${3}"
 
   # Determine if a new line is wanted after the text
   if [ "${4}" = "1" ]; then
-    NEWLINE="\n"
+    local NEWLINE="\n"
   else
-    NEWLINE=""
+    local NEWLINE=""
   fi
 
   # Build strings as independent words and setting words to not wrap on new
   # lines, but anticpiate new lines between words
   #
   # The command tput cols is fetching the colum count for the open terminal
-  NEWSTR="" 
+  local NEWSTR="" 
   for WORD in ${INPUTTEXT}
   do
     if [ "${NEWSTR}" = "" ]; then
         NEWSTR="${WORD}"
     else
-      TSTSTR="${NEWSTR}${WORD} "
+      local TSTSTR="${NEWSTR}${WORD} "
       if [ ${#TSTSTR} -lt $(($(tput cols)-${INDENT})) ]; then 
         NEWSTR="${NEWSTR} ${WORD}"
       else

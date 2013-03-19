@@ -29,6 +29,9 @@ SD_URL="http://docs.slackware.com"
 TEMP_URL="${SD_URL}/wiki:user:mfillpot:template_list"
 TEMP_FILE="${SD_DIR}/templates.txt"
 
+# set a variable to hold the template list
+TEMPS=()
+
 # Set Output font colors
 BLDTXT=$(tput bold)
 NRMTXT=$(tput sgr0)
