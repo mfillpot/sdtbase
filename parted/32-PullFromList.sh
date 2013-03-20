@@ -20,6 +20,7 @@ PullFromList() {
   done < ${LISTFILE}
 
   # Ouput the list of passes and failed documents
+  # Not using printf or PrintText and it only display first value in arrays
   echo
   echo "Fetched ${#FETCHED[@]} document(s): ${FETCHED[@]}"
   echo "Failed to fetch ${#FAILED[@]} document(s): ${FAILED[@]}"
