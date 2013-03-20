@@ -5,11 +5,11 @@ RemoveFile () {
   # Arg 1 = File Name
   # Arg 2 = boolean for verbose output
 
+  local VERB=""
+
   # Decide if the output will be verbose
   if [ "$2" = "1" ]; then
     VERB="-v"
-  else
-    VERB=""
   fi
 
   # IF file exists attempt to remove it

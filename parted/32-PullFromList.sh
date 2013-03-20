@@ -7,8 +7,8 @@ PullFromList() {
 
   local LISTFILE=${1}
   local DESTDIR=${2}
-  FETCHED=()
-  FAILED=()
+  local FETCHED=()
+  local FAILED=()
 
   # Read each line of the input file
   while read PAG
