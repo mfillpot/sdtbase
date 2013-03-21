@@ -3,7 +3,7 @@
 # License: BSD
 #
 # Do not change version number, it is changes based upon git tags
-VERSION=0.1.2
+VERSION=0.1.3
 #
 # Description
 # -------------------------------------------------------
