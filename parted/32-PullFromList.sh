@@ -22,7 +22,11 @@ PullFromList() {
   # Ouput the list of passes and failed documents
   # Not using printf or PrintText and it only display first value in arrays
   echo
-  echo "Fetched ${#FETCHED[@]} document(s): ${FETCHED[@]}"
-  echo "Failed to fetch ${#FAILED[@]} document(s): ${FAILED[@]}"
+  if [[ ${#FETCHED[@]} -ne 0 ]]; then
+    echo "Fetched ${#FETCHED[@]} document(s): ${FETCHED[@]}"
+  fi
+  if [[ ${#FAILED[@]} -ne 0 ]]; then
+    echo "Failed to fetch ${#FAILED[@]} document(s): ${FAILED[@]}"
+  fi
   echo
 }
