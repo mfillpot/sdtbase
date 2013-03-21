@@ -15,8 +15,7 @@ PullPage() {
   
   # If the destination directory does not exist exit with an error
   if [ ! -d ${DESTDIR} ]; then
-    PrintText 2 "${ERRTXT}" "The ${DESTDIR} directory does not exist,
-terminating action" 1
+    PrintText 2 "${ERRTXT}" "The ${DESTDIR} directory does not exist, terminating action" 1
     exit 1
   fi
 
@@ -43,7 +42,7 @@ terminating action" 1
 
   # If output file arleady exists prompt user to overwrite it
   if [ -e ${DESTDIR}${OF} ]; then
-    printf "\n${ERRTXT}%s${NRMTXT}\n" "${DESTDIR}${OF} exists"
+    PrintText 0 "${NRMTXT}" "${DESTDIR}${OF} exists" 1
     read -p "Would you like to overwrite it? " yn
     case ${yn} in
     [Yy]* )
@@ -53,6 +52,7 @@ terminating action" 1
       FinishPull ${PAGE}${EXTRACTLINE} ${PAGE} ${DESTDIR}${OF}
       ;;
     * )
+      # Keep printf as a simple use
       printf ""
       ;;
     esac

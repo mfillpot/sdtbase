@@ -12,8 +12,7 @@ CopyToClipboard()
   # Test to see if xclip is installed, if false display error and exit
   ls /var/log/packages | grep "\<xclip\>" > /dev/null
   if [ ! $? -eq 0 ]; then
-    printf "\n${ERRTXT}%s${NRMTXT}\n" \
-      "xclip is not installed, the contents will need to be manually copied."
+    PrintText 0 "${ERRTXT}" "xclip is not installed, the contents will need to be manually copied." 1
     exit 1
   fi
 
@@ -29,8 +28,7 @@ clipboard [y/N]? " yn
       case ${yn} in
       [Yy*]* )
         cat ${FILENAME} | xclip -selection clipboard
-        printf "\n${SCSTXT}%s${NRMTXT}\n" \
-          "The contents of ${FILENAME} has been copied to clipboard."
+        PrintText 0 "${SCSTXT}" "The contents of ${FILENAME} has been copied to clipboard." 1
         return 1
         ;;
       esac
@@ -38,8 +36,7 @@ clipboard [y/N]? " yn
       cat ${FILENAME} | xclip -selection clipboard
     fi
   else
-    printf "\n${ERRTXT}%s${NRMTXT}\n" \
-      "The File ${FILENAME} does not exist, terminating action."
+    PrintText 0 "${ERRTXT}" "The File ${FILENAME} does not exist, terminating action." 1
     exit 1
   fi
 }

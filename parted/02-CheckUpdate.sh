@@ -3,8 +3,7 @@ CheckUpdate() {
 
   # Display a message indicating that the script is checking for a new
   # version
-  printf "\n${BLDTXT}%s${NRMTXT}\n" \
-    "Checking for an updated script."
+  PrintText 2 "${BLDTXT}" "Checking for an updated script." 1
 
   # get the new version number from the repo
   local NEW_VERSION=$(lynx -dump ${VERSION_URL} | grep slackdoctool | cut -d "=" -f 2)
@@ -12,10 +11,8 @@ CheckUpdate() {
   # Test to see if an update is available, display a message indicatin the
   # status
   if [ "${NEW_VERSION}" = "${VERSION}" ]; then
-    printf "\n${SCSTXT}%s${NRMTXT}\n" \
-      "Your copy is up to date"
+    PrintText 2 "${SCSTXT}" "Your copy is up to date" 1
   else 
-    printf "\n${BLDTXT}%s${NRMTXT}\n" \
-      "A new version (${NEW_VERSION}) is available."
+    PrintText 2 "${BLDTXT}" "A new version (${NEW_VERSION}) is available." 1
   fi
 }

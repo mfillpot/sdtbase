@@ -4,8 +4,6 @@ MAINTENANCE
 --------------------------------------------
 Clean up the script
 
-Remove all occurances of the printf ouput except for in the WriteText function
-
 IMPROVEMENTS
 --------------------------------------------
 Add hooks for IsOnline where appropriate
