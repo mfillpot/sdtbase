@@ -32,6 +32,9 @@ TEMP_FILE="${SD_DIR}/templates.txt"
 # set a variable to hold the template list
 TEMPS=()
 
+# Add a variable to hold terminal width
+TERMWIDTH="$(tput cols)"
+
 # Set Output font colors
 BLDTXT=$(tput bold)
 NRMTXT=$(tput sgr0)

@@ -28,7 +28,7 @@ PrintText() {
         NEWSTR="${WORD}"
     else
       local TSTSTR="${NEWSTR}${WORD} "
-      if [ ${#TSTSTR} -lt $(($(tput cols)-${INDENT})) ]; then 
+      if [ ${#TSTSTR} -lt $((${TERMWIDTH}-${INDENT})) ]; then 
         NEWSTR="${NEWSTR} ${WORD}"
       else
         printf "%*s" ${INDENT} ""
