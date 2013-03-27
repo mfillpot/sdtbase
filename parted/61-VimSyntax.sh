@@ -12,8 +12,7 @@ VimSyntax() {
 
   # Write the new lines to the vimrc file
   echo "\" Add a pointer to the ${FILETYPE} vim syntax file">>${VIMRC}
-  echo "au BufRead,BufNewFile *.${EXTENSION} set
-filetype=${FILETYPE}">>${VIMRC}
+  echo "au BufRead,BufNewFile *.${EXTENSION} set filetype=${FILETYPE}">>${VIMRC}
   echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
 
   # Display a success message to the user
