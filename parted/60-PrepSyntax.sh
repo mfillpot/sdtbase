@@ -1,7 +1,7 @@
 PrepSyntax() {
   case "${SYNAPP}" in
     vim)
-      VImSyntax
+      VimSyntax
       ;;
     kate)
       KateSyntax
