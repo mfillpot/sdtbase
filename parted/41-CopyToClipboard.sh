@@ -23,8 +23,7 @@ CopyToClipboard()
     then
       # if xclip is installed on the system, 
       # copy the contents of the file to clipboard
-      read -p "Would you like the contents of ${FILENAME} to be copied to the
-clipboard [y/N]? " yn
+      read -p "Would you like the contents of ${FILENAME} to be copied to the clipboard [y/N]? " yn
       case ${yn} in
       [Yy*]* )
         cat ${FILENAME} | xclip -selection clipboard

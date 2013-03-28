@@ -16,8 +16,7 @@ VimSyntax() {
   echo "au! Syntax ${FILETYPE} source ${SD_DIR}/.${SYNF_VIM}">>${VIMRC}
 
   # Display a success message to the user
-  PrintText 2 "${SCSTXT}" "The script has added the following lines to your
-vimrc file" 1
+  PrintText 2 "${SCSTXT}" "The script has added the following lines to your vimrc file" 1
   # Display the newly created lines
   cat ${VIMRC} | grep ${FILETYPE}
   printf "\n"
